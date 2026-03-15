@@ -1,0 +1,398 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Mar 14, 2026, 5:25:02 PM
+    Author     : ZunzZunn
+*/
+
+/* === CORE VARIABLES & RESET === */
+:root {
+    /* Màu sắc chuẩn Apple */
+    --apple-bg-grey: #f5f5f7;
+    --apple-text-dark: #1d1d1f;
+    --apple-text-light: #86868b;
+    --apple-blue: #0071e3;
+    --apple-blue-hover: #0077ED;
+    --apple-border: #d2d2d7;
+    --apple-error: #ff3b30;
+    /* Màu cho phần bên trái */
+    --overlay-dark: rgba(0, 0, 0, 0.5);
+    --text-white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden; /* Ẩn thanh cuộn để giao diện tràn màn hình */
+    -webkit-font-smoothing: antialiased;
+}
+
+/* === LAYOUT CHÍNH (SPLIT SCREEN) === */
+.split-screen-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* === PHẦN BÊN TRÁI (Hình ảnh & Giới thiệu) === */
+.left-panel {
+    flex: 1.5; /* Chiếm khoảng 60% chiều rộng */
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Đẩy nội dung xuống dưới cùng */
+    padding: 60px;
+    color: var(--text-white);
+}
+
+.left-panel-bg {
+    position: absolute; /* Tuyệt đối so với lớp cha .left-panel */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Nằm ở lớp dưới cùng */
+
+    /* Chuyển các thuộc tính ảnh nền vào đây */
+    background-image: url('../images/bg-login.jpg'); /* Đảm bảo đường dẫn ảnh đúng */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* Chuyển hiệu ứng transition vào đây để ảnh zoom mượt mà */
+    transition: transform 10s ease;
+}
+
+.left-panel-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);
+    z-index: 2; /* Nằm đè lên ảnh một chút */
+}
+
+/* Lớp phủ màu tối lên ảnh để chữ dễ đọc hơn */
+.left-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);
+    z-index: 1;
+}
+
+/* Hiệu ứng zoom ảnh nhẹ khi di chuột vào phần bên trái */
+.left-panel:hover .left-panel-bg {
+    transform: scale(1.05);
+}
+
+.intro-content {
+    position: relative;
+    z-index: 3;
+    max-width: 600px;
+    pointer-events: none;
+    animation-name: slideUpFade;
+    animation-duration: 0.8s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+.intro-logo {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.9;
+}
+
+.left-panel h1 {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+}
+
+.left-panel p {
+    font-size: 18px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+
+/* === PHẦN BÊN PHẢI (Form đăng nhập) === */
+.right-panel {
+    flex: 1; /* Chiếm khoảng 40% chiều rộng */
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    position: relative;
+}
+
+.login-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    animation-name: fadeIn;
+    animation-duration: 1s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+.logo-area.icon-parking-style i {
+    font-size: 46px; /* Tăng kích thước lên một chút vì icon hình vuông */
+    margin-bottom: 16px;
+    color: var(--apple-text-dark); /* Đổi sang màu xanh cho đồng bộ với nút bấm */
+    /* Nếu bạn thích màu đen xám như cũ thì dùng: color: var(--apple-text-dark); */
+}
+
+.logo-area h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--apple-text-dark);
+    letter-spacing: -0.5px;
+}
+
+.logo-area p {
+    font-size: 16px;
+    color: var(--apple-text-light);
+    margin-bottom: 40px;
+}
+
+/* === CÁC THÀNH PHẦN FORM (Style cũ) === */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--apple-text-dark);
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-family: inherit;
+    border: 1px solid var(--apple-border);
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: var(--apple-text-dark);
+    transition: all 0.2s ease;
+}
+
+.form-group input:hover {
+    border-color: #a1a1a6;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2); /* Vòng sáng Apple */
+}
+
+.form-group input::placeholder {
+    color: #c7c7cc;
+    font-weight: 400;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #ffffff;
+    background-color: var(--apple-blue);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.submit-btn:hover {
+    background-color: var(--apple-blue-hover);
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3); /* Thêm shadow nhẹ khi hover nút */
+}
+
+.submit-btn:active {
+    transform: scale(0.98); /* Hiệu ứng lún xuống */
+}
+
+/* Thông báo lỗi */
+.error-message {
+    background-color: rgba(255, 59, 48, 0.1); /* Nền đỏ nhạt */
+    color: var(--apple-error);
+    font-size: 14px;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: left;
+    margin-top: 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation-name: fadeIn;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.footer-text {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--apple-text-light);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === RESPONSIVE (Cho điện thoại) === */
+@media (max-width: 900px) {
+    .split-screen-container {
+        flex-direction: column; /* Xếp chồng lên nhau khi màn hình nhỏ */
+    }
+
+    .left-panel {
+        flex: none;
+        height: 35vh; /* Chiều cao phần ảnh trên mobile */
+        padding: 30px;
+        justify-content: center;
+    }
+
+    .left-panel h1 {
+        font-size: 28px;
+    }
+    .left-panel p {
+        font-size: 16px;
+        display: none; /* Ẩn bớt chữ trên mobile cho gọn */
+    }
+    .intro-logo {
+        margin-bottom: 10px;
+    }
+
+    .right-panel {
+        flex: 1;
+        padding: 30px 24px;
+        align-items: flex-start; /* Đẩy form lên trên một chút */
+    }
+    .logo-area h2 {
+        font-size: 28px;
+    }
+    .logo-area.icon-parking-style i {
+        display: none; /* Ẩn icon táo trên mobile */
+    }
+}
+
+/* Quên mật khẩu link */
+.forgot-link {
+    display: block;
+    text-align: center; /* Đưa chữ ra giữa cho cân đối với nút Đăng nhập */
+    margin-top: 16px;   /* Khoảng cách từ nút Đăng nhập đẩy xuống */
+    margin-bottom: 0;
+    font-size: 14px;
+    color: var(--apple-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.forgot-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Modal Quên mật khẩu */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+}
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    background: #fff;
+    width: 400px;
+    padding: 32px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transform: translateY(-20px);
+    transition: 0.3s;
+    position: relative;
+}
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+.modal-header h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+.modal-header p {
+    color: var(--apple-text-light);
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+.btn-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--apple-text-light);
+    cursor: pointer;
+}

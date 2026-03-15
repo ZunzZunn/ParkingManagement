@@ -1,0 +1,695 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Mar 14, 2026, 7:09:01 PM
+    Author     : ZunzZunn
+*/
+
+/* === BIẾN MÀU SẮC CHUẨN APPLE === */
+:root {
+    --apple-bg: #f5f5f7;
+    --apple-sidebar: #ffffff;
+    --apple-card-bg: #ffffff; /* Màu nền của các thẻ Card */
+    --apple-text-dark: #1d1d1f;
+    --apple-text-light: #86868b;
+    --apple-blue: #0071e3;
+    --apple-blue-hover: #0077ED;
+    --apple-border: #d2d2d7;
+    --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* === BẢNG MÀU CHO DARK MODE === */
+[data-theme="dark"] {
+    --apple-bg: #000000;
+    --apple-sidebar: #1c1c1e;
+    --apple-card-bg: #1c1c1e;
+    --apple-text-dark: #f5f5f7;
+    --apple-border: #38383a;
+    --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--apple-bg);
+    color: var(--apple-text-dark);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* === BỐ CỤC CHÍNH (SIDEBAR + MAIN) === */
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* === SIDEBAR (THANH TRÌNH ĐƠN TRÁI) === */
+.sidebar {
+    width: 280px; /* Tăng chiều rộng lên một chút */
+    background-color: var(--apple-sidebar);
+    border-right: 1px solid var(--apple-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    z-index: 10;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--apple-blue);
+    margin-bottom: 40px;
+    padding-left: 12px;
+}
+
+.nav-links {
+    list-style: none;
+    flex: 1;
+}
+
+.nav-links li {
+    margin-bottom: 8px;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--apple-text-dark);
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.nav-links a i {
+    font-size: 18px;
+    width: 24px;
+    color: var(--apple-text-light);
+    transition: color 0.2s ease;
+}
+
+/* Hiệu ứng hover menu */
+.nav-links a:hover {
+    background-color: var(--apple-bg);
+}
+
+.nav-links a:hover i {
+    color: var(--apple-text-dark);
+}
+
+/* Nút Active (Trang hiện tại) */
+.nav-links li.active a {
+    background-color: var(--apple-blue);
+    color: #ffffff;
+}
+
+.nav-links li.active a i {
+    color: #ffffff;
+}
+
+/* PROFILE & LOGOUT DƯỚI CÙNG */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 12px;
+    border-top: 1px solid var(--apple-border);
+    margin-top: auto;
+}
+
+.user-profile .avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--apple-bg);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--apple-text-light);
+}
+
+/* Trả lại khung info bình thường */
+.user-profile .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Tên người dùng: Ép nằm trên 1 dòng, nếu dài quá thì hiện ... */
+.user-profile .info a.name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--apple-text-dark);
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    /* 3 Dòng siêu quan trọng để chống rớt chữ */
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-profile .info a.name:hover {
+    opacity: 0.6;
+}
+
+.user-profile .info .role {
+    font-size: 12px;
+    color: var(--apple-text-light);
+    margin: 0;
+}
+
+.user-profile .name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-profile .role {
+    font-size: 12px;
+    color: var(--apple-text-light);
+}
+
+.logout-btn {
+    color: var(--apple-text-light);
+    text-decoration: none;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    color: #ff3b30; /* Màu đỏ chuẩn Apple khi hover nút thoát */
+    background-color: rgba(255, 59, 48, 0.1);
+}
+
+/* === MAIN CONTENT (NỘI DUNG CHÍNH) === */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* Header (Cùng tầng layer với Body, cuộn theo trang bình thường) */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    /* Đã xóa hoàn toàn position: sticky, top, z-index và background-color */
+
+    /* Trả lại khoảng cách lề chuẩn, đẩy bảng dữ liệu bên dưới ra xa 30px */
+    margin-bottom: 30px;
+}
+
+/* Khóa luôn chiều cao của khối công tắc + tìm kiếm */
+.header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start; /* Đảm bảo công tắc luôn nằm trên cùng */
+    height: 82px; /* QUAN TRỌNG: Ép cứng chiều cao bằng đúng lúc có ô tìm kiếm (Công tắc 32px + Gap 12px + Search 38px) */
+    gap: 12px;
+}
+
+.greeting h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.greeting p {
+    font-size: 16px;
+    color: var(--apple-text-light);
+}
+
+/* Thanh tìm kiếm bo tròn */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--apple-card-bg);
+    padding: 12px 16px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    width: 300px;
+}
+
+.search-bar i {
+    color: var(--apple-text-light);
+    margin-right: 12px;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+/* Thẻ thống kê (Stats Grid) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background-color: var(--apple-card-bg);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px); /* Nhấc nhẹ thẻ lên khi hover */
+}
+
+.icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+/* Màu icon chuẩn */
+.icon-blue {
+    background: rgba(0, 113, 227, 0.1);
+    color: var(--apple-blue);
+}
+.icon-green {
+    background: rgba(52, 199, 89, 0.1);
+    color: #34c759;
+}
+.icon-orange {
+    background: rgba(255, 149, 0, 0.1);
+    color: #ff9500;
+}
+.icon-purple {
+    background: rgba(175, 82, 222, 0.1);
+    color: #af52de;
+}
+
+.stat-info h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-info p {
+    font-size: 14px;
+    color: var(--apple-text-light);
+    font-weight: 500;
+}
+
+/* Bảng dữ liệu phong cách Apple (Trắng, không viền dọc) */
+.content-card {
+    background-color: var(--apple-card-bg);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.btn-text {
+    background-color: rgba(0, 113, 227, 0.08); /* Nền xanh nhạt trong suốt */
+    border: none;
+    color: var(--apple-blue);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px; /* Bo góc tròn trịa kiểu viên thuốc (Pill) */
+    cursor: pointer;
+    transition: all 0.3s ease; /* Hiệu ứng chuyển động mượt mà */
+}
+
+.btn-text:hover {
+    background-color: var(--apple-blue); /* Biến thành khối xanh đặc */
+    color: #ffffff; /* Chữ đổi thành màu trắng */
+    transform: translateY(-2px); /* Nhấc nút nhẹ lên trên */
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3); /* Toả bóng màu xanh phía dưới */
+}
+
+.apple-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.apple-table th, .apple-table td {
+    padding: 16px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--apple-border);
+}
+
+.apple-table th {
+    color: var(--apple-text-light);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.apple-table td {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Huy hiệu (Badge) trạng thái */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.badge-active {
+    background: rgba(52, 199, 89, 0.1);
+    color: #34c759;
+}
+.badge-completed {
+    background: rgba(142, 142, 147, 0.1);
+    color: #8e8e93;
+}
+
+/* Màu chữ ô tìm kiếm (để Dark mode không bị chữ đen trên nền đen) */
+.search-bar input {
+    color: var(--apple-text-dark);
+    background: transparent;
+}
+
+/* Sắp xếp: Công tắc ở trên, Tìm kiếm ở dưới, đẩy hết sang phải */
+.header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+/* --- STYLE CÔNG TẮC CÓ ICON BÊN TRONG --- */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 64px;
+    height: 32px;
+    margin-top: -12px;
+}
+
+.theme-switch input {
+    display: none; /* Ẩn thẻ checkbox mặc định */
+}
+
+/* Rãnh trượt (chứa 2 icon) */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #d2d2d7; /* Xám nhạt của Light Mode */
+    border-radius: 34px;
+    transition: 0.4s;
+    display: flex;
+    justify-content: space-between; /* Đẩy mặt trăng sang trái, mặt trời sang phải */
+    align-items: center;
+    padding: 0 9px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* Đổ bóng chìm tạo độ sâu */
+}
+
+/* 2 Icon bên trong rãnh trượt */
+.slider i {
+    font-size: 14px;
+    z-index: 1; /* Nằm dưới cục gạt màu trắng */
+    transition: 0.3s ease;
+}
+
+/* Trạng thái Light Mode (Cục gạt nằm trái) -> Che trăng, Hiện trời */
+.slider .fa-moon {
+    opacity: 0;
+    color: #ffffff;
+}
+.slider .fa-sun {
+    opacity: 1;
+    color: #f39c12;
+}
+
+/* Cục tròn gạt (Thumb) */
+.slider:after {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 2; /* Nằm đè lên để che icon */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Trạng thái Dark Mode (Khi click vào) */
+input:checked + .slider {
+    background-color: #3a3a3c; /* Đổi nền công tắc thành xám đậm */
+}
+
+/* Trượt cục gạt sang phải */
+input:checked + .slider:after {
+    transform: translateX(32px);
+}
+
+/* Dark Mode (Cục gạt nằm phải) -> Hiện trăng, Che trời */
+input:checked + .slider .fa-moon {
+    opacity: 1;
+}
+input:checked + .slider .fa-sun {
+    opacity: 0;
+}
+
+/* --- NÚT THÊM XE --- */
+.btn-add {
+    background-color: var(--apple-blue);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-add:hover {
+    background-color: var(--apple-blue-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+}
+
+/* --- GIAO DIỆN CỬA SỔ POPUP (MODAL) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+.modal-content {
+    background: var(--apple-card-bg);
+    width: 400px;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+}
+.modal-overlay.active .modal-content {
+    transform: translateY(0) scale(1);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--apple-border);
+    padding-bottom: 12px;
+}
+.modal-header h2 {
+    font-size: 18px;
+    color: var(--apple-text-dark);
+    margin: 0;
+}
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--apple-text-light);
+}
+.form-group {
+    margin-bottom: 16px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--apple-text-dark);
+}
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--apple-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--apple-text-dark);
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    box-sizing: border-box;
+}
+.form-control:focus {
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+}
+.form-control option {
+    color: #000;
+} /* Tránh lỗi font option trên safari */
+
+/* --- NÚT CHO XE RA (Màu đỏ cảnh báo tinh tế) --- */
+.btn-checkout {
+    background-color: rgba(255, 59, 48, 0.1); /* Đỏ nhạt chuẩn iOS */
+    color: #ff3b30;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 14px; /* Bo góc dạng viên thuốc nhỏ */
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-checkout:hover {
+    background-color: #ff3b30;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+}
+
+/* --- THANH PHÂN TRANG (PAGINATION) --- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-bottom: 20px;
+}
+
+.page-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background-color: transparent;
+    color: var(--apple-text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+    background-color: rgba(0, 113, 227, 0.1);
+    color: var(--apple-blue);
+}
+
+/* Nút của trang hiện tại (Sáng màu xanh) */
+.page-btn.active {
+    background-color: var(--apple-blue);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 113, 227, 0.3);
+}
+
+/* --- GIAO DIỆN BỘ LỌC (FILTER) --- */
+.filter-card {
+    background-color: var(--apple-card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    align-items: flex-end; /* Căn đáy để cái nút Lọc bằng hàng với các ô input */
+}
+
+/* Biến tấu lại thẻ select và input date cho chuẩn Apple */
+.filter-grid .form-control {
+    height: 40px;
+}
+.btn-filter {
+    height: 40px;
+    background-color: var(--apple-text-dark); /* Nút lọc màu đen/trắng tương phản */
+    color: var(--apple-bg);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-filter:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+}
+

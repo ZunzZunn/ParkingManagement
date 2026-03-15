@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/TransactionController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/css/login.css</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/VehicleType.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/SlotDTO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/WEB-INF/ConnectDB.properties</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/ParkingSlot.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/TransactionDTO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/LogoutController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/css/dashboard.css</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/admin-dashboard.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/Role.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/User.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/filter/AuthenticationFilter.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/Ticket.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/MonthlyPass.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/login.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/TicketDAO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/transactions.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/UserDAO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/AdminDashboardController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/ParkingSlotDAO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/ProfileController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/DBContext.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/MonthlyPassDAO.java</file>
+        </group>
+    </open-files>
+</project-private>
