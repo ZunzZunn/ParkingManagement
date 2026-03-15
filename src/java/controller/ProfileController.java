@@ -95,13 +95,31 @@ public class ProfileController extends HttpServlet {
             String email = request.getParameter("email");
             String dob = request.getParameter("dateOfBirth");
 
-            if (dao.updateProfile(account.getUserID(), fullName, phoneNumber, email, dob)) {
+            // 1. Kiểm tra: Nếu người khác ĐÃ XÁC NHẬN email này -> Chặn tuyệt đối
+            if (dao.isEmailVerifiedByOther(email, account.getUserID())) {
+                request.setAttribute("msgError", "Email này đã được xác nhận bảo mật bởi một tài khoản khác!");
+                request.getRequestDispatcher("/views/profile.jsp").forward(request, response);
+                return;
+            }
+
+            // 2. Nếu người khác nhập bừa nhưng CHƯA XÁC NHẬN -> Thu hồi email đó
+            dao.clearUnverifiedSquatter(email);
+
+            // 3. Nếu người dùng hiện tại đổi sang Email mới -> Tự động hủy trạng thái đã xác minh của chính họ
+            boolean currentVerifiedStatus = account.isEmailVerified();
+            if (account.getEmail() != null && !account.getEmail().equalsIgnoreCase(email)) {
+                currentVerifiedStatus = false;
+            }
+
+            // 4. Tiến hành lưu vào CSDL
+            if (dao.updateProfile(account.getUserID(), fullName, phoneNumber, email, dob, currentVerifiedStatus)) {
                 account.setFullName(fullName);
                 account.setPhoneNumber(phoneNumber);
                 account.setEmail(email);
                 if (dob != null && !dob.isEmpty()) {
                     account.setDateOfBirth(java.sql.Date.valueOf(dob));
                 }
+                account.setEmailVerified(currentVerifiedStatus);
 
                 session.setAttribute("account", account);
                 request.setAttribute("msgSuccess", "Cập nhật thông tin thành công!");
@@ -153,6 +171,36 @@ public class ProfileController extends HttpServlet {
                     request.setAttribute("msgError", "Mật khẩu cũ không chính xác!");
                 }
             }
+        } else if ("sendVerifyOTP".equals(action)) {
+            response.setContentType("text/plain;charset=UTF-8");
+            String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+            session.setAttribute("verify_otp", otp);
+            session.setMaxInactiveInterval(300); // Tồn tại 5 phút
+
+            if (util.EmailUtil.sendVerificationOTP(account.getEmail(), otp)) {
+                response.getWriter().write("success");
+            } else {
+                response.getWriter().write("Lỗi hệ thống khi gửi email!");
+            }
+            return; // Dừng tại đây, không load trang
+        } else if ("confirmVerifyOTP".equals(action)) {
+            response.setContentType("text/plain;charset=UTF-8");
+            String inputOtp = request.getParameter("otp");
+            String sessionOtp = (String) session.getAttribute("verify_otp");
+
+            if (sessionOtp != null && sessionOtp.equals(inputOtp)) {
+                if (dao.markEmailVerified(account.getUserID())) {
+                    account.setEmailVerified(true);
+                    session.setAttribute("account", account);
+                    session.removeAttribute("verify_otp");
+                    response.getWriter().write("success");
+                } else {
+                    response.getWriter().write("Lỗi cập nhật CSDL!");
+                }
+            } else {
+                response.getWriter().write("Mã OTP không chính xác hoặc đã hết hạn!");
+            }
+            return; // Dừng tại đây, không load trang
         }
 
         request.getRequestDispatcher(

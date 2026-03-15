@@ -13,16 +13,10 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Tổng quan - iParking Admin</title>
+        <title>Tổng quan - iParking</title>
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230071e3'/><text x='50' y='55' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, sans-serif' font-size='65' font-weight='bold' fill='white'>P</text></svg>">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <script>
-            // Chặn lóe sáng trắng
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        </script>
     </head>
     <body>
         <div class="app-container">
@@ -33,7 +27,7 @@
 
             <main class="main-content">
                 <jsp:include page="header.jsp">
-                    <jsp:param name="title" value="Chào buổi sáng, Quản trị viên!" />
+                    <jsp:param name="title" value="Chào buổi sáng, ${account.fullName}!" />
                     <jsp:param name="subtitle" value="Hệ thống đang hoạt động ổn định. Đây là tình hình hôm nay." />
                 </jsp:include>
 

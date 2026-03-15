@@ -28,6 +28,10 @@ CREATE TABLE Users (
     PasswordHash VARCHAR(50) NOT NULL,
     FullName NVARCHAR(100),
     PhoneNumber VARCHAR(15),
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    IsEmailVerified BIT DEFAULT 0,
+    DateOfBirth DATE,
+    Avatar VARCHAR(255),
     RoleID INT FOREIGN KEY REFERENCES Roles(RoleID),
     IsActive BIT DEFAULT 1
 );
@@ -81,15 +85,15 @@ GO
 INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Staff'), ('Customer');
 
 -- 3.2. Người dùng (1 Admin, 2 Staff, 5 Customer)
-INSERT INTO Users (Username, PasswordHash, FullName, PhoneNumber, RoleID) VALUES 
-('admin', 'admin123', N'Quản Trị Viên', '0901234567', 1),
-('staff01', 'staff123', N'Trần Thị Thu Ngân', '0912345678', 2),
-('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 2),
-('khach01', 'khach123', N'Nguyễn Văn Một', '0988111001', 3), 
-('khach02', 'khach123', N'Lê Thị Hai', '0988111002', 3),   
-('khach03', 'khach123', N'Trần Văn Ba', '0988111003', 3),
-('khach04', 'khach123', N'Phạm Thị Bốn', '0988111004', 3),
-('khach05', 'khach123', N'Hoàng Văn Năm (Hết Hạn)', '0988111005', 3);
+INSERT INTO Users (Username, PasswordHash, FullName, PhoneNumber, Email, DateOfBirth, RoleID) VALUES 
+('admin', 'admin123', N'Quản Trị Viên', '0901234567', 'admin@iparking.com', '1990-01-01', 1),
+('staff01', 'staff123', N'Trần Thị Thu Ngân', '0912345678', 'staff01@iparking.com', '1995-05-12', 2),
+('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 'staff02@iparking.com', '1998-08-20', 2),
+('khach01', 'khach123', N'Nguyễn Văn Một', '0988111001', 'khach01@gmail.com', '1985-03-15', 3), 
+('khach02', 'khach123', N'Lê Thị Hai', '0988111002', 'khach02@gmail.com', '1992-07-22', 3),   
+('khach03', 'khach123', N'Trần Văn Ba', '0988111003', 'khach03@gmail.com', '1988-11-05', 3),
+('khach04', 'khach123', N'Phạm Thị Bốn', '0988111004', 'khach04@gmail.com', '1996-12-10', 3),
+('khach05', 'khach123', N'Hoàng Văn Năm (Hết Hạn)', '0988111005', 'khach05@gmail.com', '1980-02-28', 3);
 
 -- 3.3. Bảng giá (3 loại xe)
 INSERT INTO VehicleTypes (TypeName, PricePerHour, PricePerMonth) VALUES 

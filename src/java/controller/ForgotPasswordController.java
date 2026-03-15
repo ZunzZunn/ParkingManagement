@@ -82,13 +82,13 @@ public class ForgotPasswordController extends HttpServlet {
             String username = request.getParameter("username");
             String email = request.getParameter("email");
 
-            if (dao.checkUserEmail(username, email)) {
-                // Tạo OTP 6 số ngẫu nhiên
+            int checkStatus = dao.checkUserEmail(username, email);
+
+            if (checkStatus == 1) {
+                // 1. Đúng thông tin & ĐÃ xác nhận -> Cho phép gửi OTP
                 String otp = String.format("%06d", new Random().nextInt(999999));
                 session.setAttribute("reset_otp", otp);
                 session.setAttribute("reset_username", username);
-
-                // Set thời gian sống của OTP là 5 phút (300 giây)
                 session.setMaxInactiveInterval(300);
 
                 if (EmailUtil.sendOTP(email, otp)) {
@@ -96,7 +96,11 @@ public class ForgotPasswordController extends HttpServlet {
                 } else {
                     response.getWriter().write("Lỗi hệ thống khi gửi mail!");
                 }
+            } else if (checkStatus == 0) {
+                // 2. Đúng thông tin nhưng CHƯA xác nhận
+                response.getWriter().write("Email này chưa được xác minh bảo mật! Không thể dùng để khôi phục mật khẩu.");
             } else {
+                // 3. checkStatus == -1 (Sai thông tin)
                 response.getWriter().write("Tên đăng nhập hoặc Email không đúng!");
             }
         } else if ("verifyAndReset".equals(action)) {

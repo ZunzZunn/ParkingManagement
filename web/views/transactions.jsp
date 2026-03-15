@@ -13,16 +13,10 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Quản lý giao dịch - iParking Admin</title>
+        <title>Quản lý giao dịch - iParking</title>
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230071e3'/><text x='50' y='55' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, sans-serif' font-size='65' font-weight='bold' fill='white'>P</text></svg>">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <script>
-            // Chặn lóe sáng trắng
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        </script>
     </head>
     <body>
         <div class="app-container">
@@ -42,7 +36,7 @@
                         <form action="transactions" method="GET" class="filter-grid" id="filterForm">
                             <div class="form-group" style="margin: 0;">
                                 <label>Biển số xe</label>
-                                <input type="text" name="licensePlate" value="${param.licensePlate}" class="form-control" placeholder="Nhập biển số...">
+                                <input type="text" name="licensePlate" value="${param.licensePlate}" class="form-control auto-format-plate" placeholder="Nhập biển số...">
                             </div>
                             <div class="form-group" style="margin: 0;">
                                 <label>Loại xe</label>
@@ -175,7 +169,7 @@
                     <input type="hidden" name="action" value="checkin">
                     <div class="form-group">
                         <label>Biển số xe</label>
-                        <input type="text" name="licensePlate" class="form-control" placeholder="VD: 29A-123.45" required>
+                        <input type="text" name="licensePlate" class="form-control auto-format-plate" placeholder="VD: 29A-123.45" required>
                     </div>
                     <div class="form-group">
                         <label>Loại phương tiện</label>
@@ -311,6 +305,37 @@
                     e.preventDefault();
                     const url = new URL(btn.href);
                     fetchTableData(url.searchParams.toString());
+                }
+            });
+        </script>
+
+        <script>
+            document.addEventListener('input', function (e) {
+                // Kiểm tra xem phần tử đang gõ có chứa class auto-format-plate không
+                if (e.target && e.target.classList.contains('auto-format-plate')) {
+
+                    let val = e.target.value.toUpperCase();
+                    let clean = val.replace(/[^A-Z0-9]/g, '');
+                    let formatted = clean;
+
+                    if (clean.length >= 7) {
+                        let tail5 = clean.slice(-5);
+                        let tail4 = clean.slice(-4);
+
+                        if (/^\d{5}$/.test(tail5)) {
+                            let prefix = clean.slice(0, -5);
+                            formatted = prefix + '-' + tail5.slice(0, 3) + '.' + tail5.slice(3);
+                        } else if (/^\d{4}$/.test(tail4)) {
+                            let prefix = clean.slice(0, -4);
+                            formatted = prefix + '-' + tail4;
+                        }
+                    }
+
+                    if (e.target.value !== formatted) {
+                        e.target.value = formatted;
+                        // Kích hoạt sự kiện 'input' để tính năng Search Real-time nhận diện được sự thay đổi
+                        e.target.dispatchEvent(new Event('input', {bubbles: true}));
+                    }
                 }
             });
         </script>

@@ -13,18 +13,12 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Thông tin cá nhân - iParking Admin</title>
+        <title>Thông tin cá nhân - iParking</title>
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230071e3'/><text x='50' y='55' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, sans-serif' font-size='65' font-weight='bold' fill='white'>P</text></svg>">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-        <script>
-            // Chặn lóe sáng trắng khi tải trang
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        </script>
     </head>
     <body>
         <div class="app-container">
@@ -78,13 +72,27 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Họ và Tên</label>
+                                    <label>Họ và Tên <span style="color: var(--apple-error);">*</span></label>
                                     <input type="text" name="fullName" value="<%= account.getFullName() %>" required>
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" name="email" value="<%= account.getEmail() != null ? account.getEmail() : "" %>" placeholder="VD: admin@iparking.com">
+                                    <label>Email <span style="color: var(--apple-error);">*</span></label>
+                                    <div class="email-input-wrapper">
+                                        <input type="email" name="email" value="<%= account.getEmail() != null ? account.getEmail() : "" %>" required>
+
+                                        <c:choose>
+                                            <c:when test="${account.emailVerified}">
+                                                <div class="badge-verified" title="Email đã xác nhận bảo mật"><i class="fa-solid fa-circle-check"></i></div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                <button type="button" class="btn-verify" id="btnSendVerify">Xác nhận Email</button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <c:if test="${not account.emailVerified}">
+                                        <small style="color: var(--apple-error); margin-top: 8px; display: block;"><i class="fa-solid fa-triangle-exclamation"></i> Vui lòng xác nhận Email để có thể khôi phục mật khẩu khi cần.</small>
+                                    </c:if>
                                 </div>
 
                                 <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -217,6 +225,94 @@
                                                 });
                                             }, 'image/jpeg', 0.9);
                                         });
+        </script>
+
+        <div class="crop-modal" id="verifyEmailModal">
+            <div class="crop-modal-content profile-card" style="max-width: 420px; text-align: center;">
+                <h3 style="display: flex; justify-content: center; gap: 10px; align-items: center;"><i class="fa-solid fa-shield-halved" style="color: #34c759;"></i> Xác thực bảo mật</h3>
+                <p style="color: var(--apple-text-light); margin-bottom: 24px; line-height: 1.5;">Mã OTP gồm 6 chữ số đã được gửi đến email <br><strong style="color: var(--apple-text-dark);">${account.email}</strong></p>
+
+                <input type="text" id="verifyOtpInput" placeholder="Nhập mã OTP (6 số)" class="form-control" style="text-align: center; margin-bottom: 24px;">
+                <p id="verifyMsg" style="color: var(--apple-error); font-size: 14px; margin-bottom: 20px; display: none;"></p>
+
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button type="button" class="btn-submit" id="btnCloseVerify" style="background: var(--apple-bg-grey); color: var(--apple-text-dark); flex: 1; margin: 0;">Hủy</button>
+                    <button type="button" class="btn-submit" id="btnConfirmVerify" style="flex: 1; margin: 0;">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const btnSendVerify = document.getElementById('btnSendVerify');
+            const verifyModal = document.getElementById('verifyEmailModal');
+
+            if (btnSendVerify) {
+                btnSendVerify.addEventListener('click', async () => {
+                    // Kiểm tra xem user đã lưu email vào CSDL chưa
+                    const currentEmail = "${account.email}";
+                    if (!currentEmail) {
+                        alert("Vui lòng nhập Email và nhấn 'Lưu thay đổi' trước khi xác nhận!");
+                        return;
+                    }
+
+                    btnSendVerify.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    btnSendVerify.disabled = true;
+
+                    try {
+                        const params = new URLSearchParams();
+                        params.append('action', 'sendVerifyOTP');
+                        const res = await fetch('${pageContext.request.contextPath}/profile', {method: 'POST', body: params});
+                        const text = await res.text();
+
+                        if (text === 'success') {
+                            verifyModal.classList.add('active');
+                            document.getElementById('verifyMsg').style.display = 'none';
+                            document.getElementById('verifyOtpInput').value = '';
+                        } else {
+                            alert(text);
+                        }
+                    } catch (e) {
+                        alert("Lỗi kết nối!");
+                    }
+
+                    btnSendVerify.innerHTML = 'Xác nhận Email';
+                    btnSendVerify.disabled = false;
+                });
+            }
+
+            document.getElementById('btnCloseVerify').addEventListener('click', () => verifyModal.classList.remove('active'));
+
+            document.getElementById('btnConfirmVerify').addEventListener('click', async () => {
+                const btn = document.getElementById('btnConfirmVerify');
+                const otp = document.getElementById('verifyOtpInput').value.trim();
+                if (!otp)
+                    return;
+
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                try {
+                    const params = new URLSearchParams();
+                    params.append('action', 'confirmVerifyOTP');
+                    params.append('otp', otp);
+
+                    const res = await fetch('${pageContext.request.contextPath}/profile', {method: 'POST', body: params});
+                    const text = await res.text();
+
+                    if (text === 'success') {
+                        window.location.reload(); // Tự động load lại trang để hiện tích xanh
+                    } else {
+                        const msg = document.getElementById('verifyMsg');
+                        msg.style.display = 'block';
+                        msg.innerText = text;
+                    }
+                } catch (e) {
+                    alert("Lỗi kết nối!");
+                }
+
+                btn.innerHTML = 'Xác nhận';
+                btn.disabled = false;
+            });
         </script>
     </body>
 </html>

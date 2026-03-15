@@ -55,4 +55,40 @@ public class EmailUtil {
             return false;
         }
     }
+
+    public static boolean sendVerificationOTP(String toEmail, String otpCode) {
+        final String fromEmail = "myniyong.tg@gmail.com"; // Thay bằng mail của bạn
+        final String password = "yaeh uacr pjvf xmkp";     // Thay bằng App Password 16 số
+
+        java.util.Properties props = new java.util.Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(new InternetAddress(fromEmail, "iParking Security", "UTF-8"));
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            msg.setSubject("Xác nhận địa chỉ Email - iParking", "UTF-8");
+
+            String htmlContent = "<h2 style='color: #0071e3;'>Xác nhận Email của bạn</h2>"
+                    + "<p>Mã OTP xác nhận của bạn là: <b style='font-size: 24px; color: #34c759;'>" + otpCode + "</b></p>"
+                    + "<p>Vui lòng nhập mã này trên trang Hồ sơ. Mã có hiệu lực trong 5 phút.</p>";
+
+            msg.setContent(htmlContent, "text/html; charset=utf-8");
+            Transport.send(msg);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

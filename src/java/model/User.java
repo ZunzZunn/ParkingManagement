@@ -22,11 +22,12 @@ public class User {
     private String email;
     private java.sql.Date dateOfBirth;
     private String avatar;
+    private boolean emailVerified;
 
     public User() {
     }
 
-    public User(int userID, String username, String passwordHash, String fullName, String phoneNumber, int roleID, boolean isActive, String email, Date dateOfBirth, String avatar) {
+    public User(int userID, String username, String passwordHash, String fullName, String phoneNumber, int roleID, boolean isActive, String email, Date dateOfBirth, String avatar, boolean emailVerified) {
         this.userID = userID;
         this.username = username;
         this.passwordHash = passwordHash;
@@ -37,6 +38,7 @@ public class User {
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.avatar = avatar;
+        this.emailVerified = emailVerified;
     }
 
     // Các hàm Getters và Setters
@@ -118,5 +120,13 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

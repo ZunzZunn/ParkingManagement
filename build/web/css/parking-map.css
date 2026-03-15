@@ -1,0 +1,223 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Mar 16, 2026, 12:55:53 AM
+    Author     : myniy
+*/
+
+/* =========================================================
+   CSS RIÊNG CHO SƠ ĐỒ BÃI XE - CHUẨN APPLE
+   ========================================================= */
+
+.zone-header {
+    margin: 24px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--apple-text-dark);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.slot-card {
+    background: var(--apple-bg-grey);
+    border-radius: 16px;
+    padding: 16px 8px;
+    text-align: center;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.slot-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.slot-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 8px 0 4px;
+    color: inherit;
+}
+
+.slot-card small {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* --- CÁC TRẠNG THÁI MÀU SẮC BO GÓC --- */
+.status-Available {
+    border-color: #34c759;
+    background: rgba(52, 199, 89, 0.08);
+    color: #34c759;
+}
+.status-Occupied {
+    border-color: #0071e3;
+    background: rgba(0, 113, 227, 0.08);
+    color: #0071e3;
+}
+.status-Reserved {
+    border-color: #ff9500;
+    background: rgba(255, 149, 0, 0.08);
+    color: #ff9500;
+}
+.status-Maintenance {
+    border-color: #ff3b30;
+    background: rgba(255, 59, 48, 0.08);
+    color: #ff3b30;
+}
+
+/* --- BẢNG CHÚ THÍCH (LEGEND) --- */
+.map-legend {
+    display: flex;
+    gap: 20px;
+    background: var(--apple-card-bg);
+    padding: 16px 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: var(--apple-shadow);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--apple-text-dark);
+}
+
+.legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+/* --- MODAL TƯƠNG TÁC Ô ĐỖ --- */
+.map-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s ease;
+    z-index: 1000;
+}
+.map-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+.map-modal-content {
+    background: var(--apple-card-bg);
+    width: 100%;
+    max-width: 420px;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    transform: scale(0.95);
+    transition: 0.3s ease;
+}
+.map-modal.active .map-modal-content {
+    transform: scale(1);
+}
+
+/* --- NÚT BẤM VÀ Ô NHẬP LIỆU CHUẨN APPLE CHO MODAL --- */
+.apple-modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    margin-top: 10px;
+}
+.btn-in {
+    background: #34c759;
+}
+.btn-in:hover {
+    background: #2eb050;
+    transform: scale(0.98);
+}
+.btn-out {
+    background: #ff3b30;
+}
+.btn-out:hover {
+    background: #e0352b;
+    transform: scale(0.98);
+}
+
+.apple-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--apple-border);
+    background: var(--apple-bg-grey);
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    transition: 0.2s;
+    color: var(--apple-text-dark);
+}
+.apple-input:focus {
+    border-color: var(--apple-blue);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+    outline: none;
+}
+
+/* Nút Tạm khóa / Đánh dấu bảo trì (Đã chuyển sang màu Đỏ) */
+.btn-maintenance {
+    background: #ff3b30; /* Màu đỏ của nút btn-out */
+    color: white; /* Đổi màu chữ sang trắng cho nổi */
+    border: none; /* Xóa viền */
+    margin-top: 12px;
+}
+
+.btn-maintenance:hover {
+    background: #e0352b; /* Màu đỏ hover của nút btn-out */
+    transform: scale(0.98); /* Hiệu ứng lún xuống đặc trưng */
+}
+
+/* Nút Hoàn tất bảo trì (Dùng trong modal status Maintenance) */
+.btn-complete-maintenance {
+    background: var(--apple-blue); /* Màu xanh mặc định */
+    color: white; /* Chữ trắng */
+    border: none;
+}
+
+.btn-complete-maintenance:hover {
+    background: #005bb5; /* Đổi màu xanh đậm hơn khi hover */
+    transform: scale(0.98); /* Hiệu ứng lún xuống */
+}

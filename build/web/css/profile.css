@@ -272,3 +272,35 @@
 .cropper-face {
     border-radius: 50%; /* Khung cắt hình tròn để người dùng dễ hình dung Avatar */
 }
+
+/* Nút bấm và Huy hiệu xác nhận */
+.email-input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.email-input-wrapper input {
+    flex: 1;
+    margin-bottom: 0;
+}
+.btn-verify {
+    background-color: var(--apple-blue);
+    color: white;
+    border: none;
+    padding: 0 16px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+.btn-verify:hover {
+    background-color: #005bb5;
+}
+.badge-verified {
+    color: #34c759;
+    font-size: 24px;
+    padding: 0 10px;
+}

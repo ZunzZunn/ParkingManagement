@@ -12,22 +12,20 @@
 %>
 
 <nav class="sidebar">
-    <div class="logo-area">
-        <div class="logo-icon">
-            <i class="fa-solid fa-square-parking"></i>
-        </div>
-        <span>iParking</span>
-    </div>
+    <a href="${pageContext.request.contextPath}/admin-dashboard" class="logo-area" style="text-decoration: none;">
+        <i class="fa-solid fa-square-parking" style="color: var(--apple-blue); font-size: 36px;"></i>
+        <span class="logo-text">iParking</span>
+    </a>
 
     <ul class="nav-links">
         <li class="${param.activePage == 'dashboard' ? 'active' : ''}">
             <a href="${pageContext.request.contextPath}/admin-dashboard"><i class="fa-solid fa-house"></i> Tổng quan</a>
         </li>
-        <li class="${param.activePage == 'map' ? 'active' : ''}">
-            <a href="#"><i class="fa-solid fa-car"></i> Sơ đồ bãi xe</a>
+        <li class="${param.activePage == 'parking-map' ? 'active' : ''}">
+            <a href="${pageContext.request.contextPath}/parking-map"><i class="fa-solid fa-map-location-dot"></i> Sơ đồ bãi xe</a>
         </li>
         <li class="${param.activePage == 'monthly_ticket' ? 'active' : ''}">
-            <a href="#"><i class="fa-solid fa-ticket"></i> Vé tháng</a>
+            <a href="${pageContext.request.contextPath}/monthly-ticket"><i class="fa-solid fa-ticket"></i> Vé tháng</a>
         </li>
         <li class="${param.activePage == 'transactions' ? 'active' : ''}">
             <a href="${pageContext.request.contextPath}/transactions"><i class="fa-solid fa-clock-rotate-left"></i> Quản lý Giao dịch</a>
