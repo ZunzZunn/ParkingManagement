@@ -81,7 +81,7 @@
                                         <td><strong>#${p.passID}</strong></td>
                                         <td>${p.customerName}</td>
                                         <td>${p.phoneNumber}</td>
-                                        <td><strong style="letter-spacing: 1px;">${p.licensePlate}</strong></td>
+                                        <td><strong>${p.licensePlate}</strong></td>
                                         <td><fmt:formatDate value="${p.startDate}" pattern="dd/MM/yyyy"/></td>
                                         <td><strong style="color: var(--apple-text-dark);"><fmt:formatDate value="${p.endDate}" pattern="dd/MM/yyyy"/></strong></td>
                                         <td>
@@ -98,7 +98,9 @@
                                             </c:choose>
                                         </td>
                                         <td>
-                                            <button class="btn-text"><i class="fa-solid fa-rotate"></i> Gia hạn</button>
+                                            <button class="btn-text btn-renew" data-id="${p.passID}" data-plate="${p.licensePlate}" data-name="${p.customerName}">
+                                                <i class="fa-solid fa-rotate"></i> Gia hạn
+                                            </button>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -144,14 +146,81 @@
             </div>
         </div>
 
+        <div class="modal-overlay" id="renewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Gia hạn Vé tháng</h2>
+                    <button class="btn-close" id="btnCloseRenewModal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form action="${pageContext.request.contextPath}/monthly-ticket" method="POST">
+                    <input type="hidden" name="action" value="renew">
+                    <input type="hidden" name="passID" id="renewPassID">
+
+                    <div class="form-group">
+                        <label>Khách hàng</label>
+                        <input type="text" id="renewCustomerName" class="form-control" disabled style="background: var(--apple-bg); color: var(--apple-text-light);">
+                    </div>
+                    <div class="form-group">
+                        <label>Biển số xe</label>
+                        <input type="text" id="renewLicensePlate" class="form-control" disabled style="background: var(--apple-bg); color: var(--apple-text-light); font-weight: bold; letter-spacing: 1px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Gói gia hạn mới</label>
+                        <select name="duration" class="form-control" required>
+                            <option value="1">1 Tháng</option>
+                            <option value="3">3 Tháng (Giảm 5%)</option>
+                            <option value="6">6 Tháng (Giảm 10%)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-add" style="width: 100%; justify-content: center; margin-top: 20px; font-size: 16px; padding: 12px; background-color: #34c759; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);">
+                        <i class="fa-solid fa-rotate"></i> Xác nhận gia hạn
+                    </button>
+                </form>
+            </div>
+        </div>
+
         <script>
-            // Xử lý Modal
-            const modal = document.getElementById('addModal');
-            document.getElementById('btnOpenModal').addEventListener('click', () => modal.classList.add('active'));
-            document.getElementById('btnCloseModal').addEventListener('click', () => modal.classList.remove('active'));
-            window.addEventListener('click', (e) => {
-                if (e.target === modal)
-                    modal.classList.remove('active');
+            // --- XỬ LÝ ĐÓNG MỞ CÁC MODAL ---
+            const addModal = document.getElementById('addModal');
+            const renewModal = document.getElementById('renewModal');
+
+            // 1. Mở Modal Đăng ký mới
+            document.getElementById('btnOpenModal').addEventListener('click', () => {
+                addModal.classList.add('active');
+            });
+
+            // 2. Đóng Modal Đăng ký mới
+            document.getElementById('btnCloseModal').addEventListener('click', () => {
+                addModal.classList.remove('active');
+            });
+
+            // 3. Đóng Modal Gia hạn
+            document.getElementById('btnCloseRenewModal').addEventListener('click', () => {
+                renewModal.classList.remove('active');
+            });
+
+            // 4. Lắng nghe click toàn trang (Mở gia hạn + Đóng khi nhấn ra ngoài)
+            document.addEventListener('click', function (e) {
+                // Nhấn ra vùng đen để đóng
+                if (e.target === addModal)
+                    addModal.classList.remove('active');
+                if (e.target === renewModal)
+                    renewModal.classList.remove('active');
+
+                // Nếu nhấn vào nút Gia hạn trong bảng
+                const btnRenew = e.target.closest('.btn-renew');
+                if (btnRenew) {
+                    e.preventDefault();
+
+                    // Lấy dữ liệu gán vào form
+                    document.getElementById('renewPassID').value = btnRenew.getAttribute('data-id');
+                    document.getElementById('renewLicensePlate').value = btnRenew.getAttribute('data-plate');
+                    document.getElementById('renewCustomerName').value = btnRenew.getAttribute('data-name');
+
+                    // Bật Modal
+                    renewModal.classList.add('active');
+                }
             });
 
             // Auto-format Biển số xe
@@ -183,16 +252,55 @@
             const tableBody = document.getElementById('tableBody');
             let debounceTimer;
 
+            // Hàm lấy dữ liệu với hiệu ứng trượt mượt mà (FLIP Animation)
             async function fetchTableData(urlParams) {
+                // 1. Ghi lại vị trí các dòng cũ trước khi dữ liệu thay đổi
+                const positions = new Map();
+                tableBody.querySelectorAll('tr').forEach(row => {
+                    // Dùng thẻ strong đầu tiên (chứa Mã vé, VD: #123) làm ID định danh
+                    const id = row.querySelector('strong')?.innerText;
+                    if (id) {
+                        positions.set(id, row.getBoundingClientRect().top);
+                    }
+                });
+
                 try {
                     const response = await fetch('monthly-ticket?' + urlParams);
                     const html = await response.text();
                     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-                    // Cập nhật DOM cực mượt
+                    // 2. Cập nhật DOM nhanh
                     tableBody.innerHTML = doc.getElementById('tableBody').innerHTML;
 
-                    // Đồng bộ URL
+                    // 3. Kích hoạt hiệu ứng trượt (FLIP)
+                    requestAnimationFrame(() => {
+                        tableBody.querySelectorAll('tr').forEach(row => {
+                            const id = row.querySelector('strong')?.innerText;
+                            const oldTop = positions.get(id);
+
+                            if (oldTop) {
+                                const delta = oldTop - row.getBoundingClientRect().top;
+                                if (delta !== 0) {
+                                    row.style.transition = 'none';
+                                    row.style.transform = `translateY(${delta}px)`;
+
+                                    requestAnimationFrame(() => {
+                                        row.style.transition = 'transform 0.5s cubic-bezier(0.2, 1, 0.2, 1)';
+                                        row.style.transform = '';
+                                    });
+                                }
+                            } else {
+                                // Dòng dữ liệu mới xuất hiện (chưa có vị trí cũ) -> Áp dụng fade-in
+                                row.style.opacity = '0';
+                                setTimeout(() => {
+                                    row.style.transition = 'opacity 0.4s';
+                                    row.style.opacity = '1';
+                                }, 50);
+                            }
+                        });
+                    });
+
+                    // 4. Đồng bộ URL để không bị mất bộ lọc khi người dùng F5
                     window.history.pushState({}, '', 'monthly-ticket?' + urlParams);
                 } catch (e) {
                     console.error("Lỗi tải bảng:", e);
@@ -209,6 +317,46 @@
                     const params = new URLSearchParams(new FormData(filterForm));
                     fetchTableData(params.toString());
                 }, delay);
+            });
+        </script>
+
+        <script>
+            // Xử lý Modal Gia hạn
+            const renewModal = document.getElementById('renewModal');
+            const btnCloseRenewModal = document.getElementById('btnCloseRenewModal');
+
+            // Lắng nghe sự kiện click trên toàn bộ Document (Hỗ trợ tốt cho bảng dùng AJAX)
+            document.addEventListener('click', function (e) {
+                // Nếu click trúng nút Gia Hạn
+                const btnRenew = e.target.closest('.btn-renew');
+                if (btnRenew) {
+                    e.preventDefault();
+
+                    // Lấy dữ liệu từ các thuộc tính data-
+                    const passID = btnRenew.getAttribute('data-id');
+                    const plate = btnRenew.getAttribute('data-plate');
+                    const name = btnRenew.getAttribute('data-name');
+
+                    // Đổ dữ liệu vào Form
+                    document.getElementById('renewPassID').value = passID;
+                    document.getElementById('renewLicensePlate').value = plate;
+                    document.getElementById('renewCustomerName').value = name;
+
+                    // Hiển thị Modal
+                    renewModal.classList.add('active');
+                }
+            });
+
+            // Đóng Modal khi bấm X
+            btnCloseRenewModal.addEventListener('click', () => {
+                renewModal.classList.remove('active');
+            });
+
+            // Đóng Modal khi bấm ra ngoài khoảng đen
+            window.addEventListener('click', (e) => {
+                if (e.target === renewModal) {
+                    renewModal.classList.remove('active');
+                }
             });
         </script>
     </body>

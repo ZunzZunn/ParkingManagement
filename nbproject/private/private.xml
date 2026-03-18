@@ -3,7 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/monthly-ticket.jsp</file>
             <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/login.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/MonthlyTicketController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/MonthlyPassDAO.java</file>
         </group>
     </open-files>
 </project-private>
