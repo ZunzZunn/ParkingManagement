@@ -272,7 +272,8 @@ body {
 /* Thẻ thống kê (Stats Grid) */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* Tự động chia đều không gian: 4 thẻ thì chia 4, 3 thẻ thì chia 3, màn hình nhỏ tự rớt dòng */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 24px;
     margin-bottom: 40px;
 }

@@ -96,7 +96,7 @@ public class LoginController extends HttpServlet {
                 case 1 ->
                     response.sendRedirect("admin-dashboard");
                 case 2 ->
-                    response.sendRedirect("views/staff-dashboard.jsp");
+                    response.sendRedirect("staff-dashboard");
                 case 3 ->
                     response.sendRedirect("views/customer-dashboard.jsp");
                 default -> {
