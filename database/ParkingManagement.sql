@@ -53,7 +53,8 @@ CREATE TABLE ParkingSlots (
 
 CREATE TABLE MonthlyPasses (
     PassID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES Users(UserID), 
+    CustomerName NVARCHAR(100) NOT NULL,  -- Thêm Tên khách hàng
+    PhoneNumber VARCHAR(20) NOT NULL,     -- Thêm Số điện thoại
     SlotID INT FOREIGN KEY REFERENCES ParkingSlots(SlotID), 
     LicensePlate VARCHAR(20) NOT NULL UNIQUE, 
     TypeID INT FOREIGN KEY REFERENCES VehicleTypes(TypeID),
@@ -88,12 +89,7 @@ INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Staff'), ('Customer');
 INSERT INTO Users (Username, PasswordHash, FullName, PhoneNumber, Email, DateOfBirth, RoleID) VALUES 
 ('admin', 'admin123', N'Quản Trị Viên', '0901234567', 'admin@iparking.com', '1990-01-01', 1),
 ('staff01', 'staff123', N'Trần Thị Thu Ngân', '0912345678', 'staff01@iparking.com', '1995-05-12', 2),
-('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 'staff02@iparking.com', '1998-08-20', 2),
-('khach01', 'khach123', N'Nguyễn Văn Một', '0988111001', 'khach01@gmail.com', '1985-03-15', 3), 
-('khach02', 'khach123', N'Lê Thị Hai', '0988111002', 'khach02@gmail.com', '1992-07-22', 3),   
-('khach03', 'khach123', N'Trần Văn Ba', '0988111003', 'khach03@gmail.com', '1988-11-05', 3),
-('khach04', 'khach123', N'Phạm Thị Bốn', '0988111004', 'khach04@gmail.com', '1996-12-10', 3),
-('khach05', 'khach123', N'Hoàng Văn Năm (Hết Hạn)', '0988111005', 'khach05@gmail.com', '1980-02-28', 3);
+('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 'staff02@iparking.com', '1998-08-20', 2);
 
 -- 3.3. Bảng giá (3 loại xe)
 INSERT INTO VehicleTypes (TypeName, PricePerHour, PricePerMonth) VALUES 
@@ -129,12 +125,11 @@ INSERT INTO ParkingSlots (SlotCode, Zone, TypeID, Status) VALUES
 ('C-03', N'Khu Xe Đạp', 3, 'Available');
 
 -- 3.5. Cấp vé tháng cho khách hàng 
-INSERT INTO MonthlyPasses (UserID, SlotID, LicensePlate, TypeID, StartDate, EndDate) VALUES 
-(4, 2, '29M1-111.11', 1, '2026-01-01', '2026-12-31'), -- khach01 (Chỗ A-02) - Còn hạn dài
-(5, 9, '30A-222.22', 2, '2026-03-01', '2026-04-01'),  -- khach02 (Chỗ B-01) - Còn hạn
-(6, 11, '30A-333.33', 2, '2026-02-15', '2026-08-15'), -- khach03 (Chỗ B-03) - Còn hạn
-(7, 4, '29M1-444.44', 1, '2026-03-01', '2026-06-01'), -- khach04 (Chỗ A-04) - Còn hạn
-(8, 7, '29M1-555.55', 1, '2026-01-01', '2026-02-01'); -- khach05 (Chỗ A-07) - ĐÃ HẾT HẠN (Để test logic từ chối vào bãi)
+INSERT INTO MonthlyPasses (CustomerName, PhoneNumber, SlotID, LicensePlate, TypeID, StartDate, EndDate) VALUES 
+(N'Nguyễn Văn A', '0987654321', 2, '29M1-111.11', 1, '2026-01-01', '2026-12-31'), -- khach01 (Chỗ A-02) - Còn hạn dài
+(N'Trần Thị B', '0912345678', 9, '30A-222.22', 2, '2026-03-01', '2026-04-01'),  -- khach02 (Chỗ B-01) - Còn hạn
+(N'Lê Văn C', '0909090909', 11, '30A-333.33', 2, '2026-02-15', '2026-08-15'), -- khach03 (Chỗ B-03) - Còn hạn
+(N'Phạm Quang D', '0944556677', 7, '29M1-555.55', 1, '2026-01-01', '2026-02-01'); -- khach05 (Chỗ A-07) - ĐÃ HẾT HẠN (Để test logic từ chối vào bãi)
 
 -- 3.6. Lịch sử giao dịch (Tickets)
 -- [A] CÁC XE ĐANG GỬI TRONG BÃI (Active) -> Khớp với 5 chỗ Occupied ở trên

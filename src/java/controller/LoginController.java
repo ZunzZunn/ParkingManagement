@@ -87,11 +87,18 @@ public class LoginController extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("account", account);
 
+            if (!account.isEmailVerified()) {
+                session.setAttribute("showEmailWarning", true);
+            }
+
             int role = account.getRoleID();
             switch (role) {
-                case 1 -> response.sendRedirect("admin-dashboard");
-                case 2 -> response.sendRedirect("views/staff-dashboard.jsp");
-                case 3 -> response.sendRedirect("views/customer-dashboard.jsp");
+                case 1 ->
+                    response.sendRedirect("admin-dashboard");
+                case 2 ->
+                    response.sendRedirect("views/staff-dashboard.jsp");
+                case 3 ->
+                    response.sendRedirect("views/customer-dashboard.jsp");
                 default -> {
                 }
             }

@@ -35,20 +35,18 @@ public class MonthlyPassDAO extends DBContext {
         java.util.List<model.MonthlyPassDTO> list = new java.util.ArrayList<>();
 
         // Dùng StringBuilder để nối câu lệnh SQL động
+        // Đã bỏ LEFT JOIN với bảng Users, lấy trực tiếp từ bảng MonthlyPasses
         StringBuilder sql = new StringBuilder(
-                "SELECT m.*, u.FullName, u.PhoneNumber "
-                + "FROM MonthlyPasses m "
-                + "LEFT JOIN Users u ON m.UserID = u.UserID "
-                + "WHERE 1=1 "
+                "SELECT * FROM MonthlyPasses m WHERE 1=1 "
         );
 
         // 1. Lọc theo biển số
         if (licensePlate != null && !licensePlate.trim().isEmpty()) {
             sql.append(" AND m.LicensePlate LIKE ? ");
         }
-        // 2. Lọc theo Tên hoặc SĐT
+        // 2. Lọc theo Tên hoặc SĐT (Sử dụng trực tiếp CustomerName và PhoneNumber trong bảng m)
         if (customerInfo != null && !customerInfo.trim().isEmpty()) {
-            sql.append(" AND (u.FullName LIKE ? OR u.PhoneNumber LIKE ?) ");
+            sql.append(" AND (m.CustomerName LIKE ? OR m.PhoneNumber LIKE ?) ");
         }
         // 3. Lọc theo Trạng thái (Dùng hàm DATEDIFF chuẩn của SQL Server)
         if ("Expired".equals(status)) {
@@ -77,18 +75,21 @@ public class MonthlyPassDAO extends DBContext {
             java.sql.ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 model.MonthlyPassDTO dto = new model.MonthlyPassDTO();
-                dto.setPassID(rs.getInt("PassID"));
-                dto.setUserID(rs.getInt("UserID"));
-                dto.setSlotID(rs.getInt("SlotID"));
+                dto.setPassId(rs.getInt("PassID"));
+
+                // Đã xóa dòng dto.setUserID(...) vì database không còn UserID nữa
+                dto.setSlotId(rs.getInt("SlotID"));
                 dto.setLicensePlate(rs.getString("LicensePlate"));
-                dto.setTypeID(rs.getInt("TypeID"));
+                dto.setTypeId(rs.getInt("TypeID"));
                 dto.setStartDate(rs.getDate("StartDate"));
                 dto.setEndDate(rs.getDate("EndDate"));
                 dto.setIsActive(rs.getBoolean("IsActive"));
-                dto.setCustomerName(rs.getString("FullName"));
+
+                // Thay đổi "FullName" thành "CustomerName" cho khớp với cột trong Database
+                dto.setCustomerName(rs.getString("CustomerName"));
                 dto.setPhoneNumber(rs.getString("PhoneNumber"));
 
-                // Tính toán lại huy hiệu (Badge) cho giao diện
+                // Tính toán lại huy hiệu (Badge) cho giao diện (Giữ nguyên logic của bạn)
                 java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
                 long diff = rs.getDate("EndDate").getTime() - today.getTime();
                 long daysLeft = diff / (1000 * 60 * 60 * 24);

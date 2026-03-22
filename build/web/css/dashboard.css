@@ -700,3 +700,84 @@ input:checked + .slider .fa-sun {
     transform: translateY(-2px);
 }
 
+/* === APPLE STYLE NOTIFICATION (POPUP TỪ TRÊN XUỐNG) === */
+.apple-notification {
+    position: fixed;
+    top: -120px; /* Ẩn phía trên màn hình ban đầu */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+    z-index: 10000;
+    transition: top 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Hiệu ứng trượt lò xo nhẹ của Apple */
+}
+
+/* Tương thích Dark Mode */
+[data-theme="dark"] .apple-notification {
+    background: rgba(28, 28, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.notif-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 149, 0, 0.1); /* Nền cam nhạt */
+    color: #ff9500; /* Cam cảnh báo chuẩn Apple */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.notif-content {
+    flex: 1;
+}
+
+.notif-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--apple-text-dark);
+}
+
+.notif-content p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--apple-text-light);
+    line-height: 1.4;
+}
+
+.notif-close {
+    background: none;
+    border: none;
+    color: var(--apple-text-light);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notif-close:hover {
+    color: var(--apple-text-dark);
+}
+
+/* Lớp class kích hoạt trượt xuống */
+.apple-notification.show {
+    top: 24px;
+}

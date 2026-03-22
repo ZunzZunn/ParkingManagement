@@ -12,40 +12,30 @@ import java.sql.Date;
  */
 public class MonthlyPassDTO extends MonthlyPass {
 
-    private String customerName;
-    private String phoneNumber;
     private String statusBadge; // Lưu trạng thái: Active, ExpiringSoon, Expired
+    private String slotCode;    // Mã chỗ đỗ (VD: A-01) - Lấy từ lệnh JOIN
+    private String typeName;    // Tên loại xe (VD: Xe máy) - Lấy từ lệnh JOIN
 
     public MonthlyPassDTO() {
+        super();
     }
 
-    public MonthlyPassDTO(String customerName, String phoneNumber, String statusBadge) {
-        this.customerName = customerName;
-        this.phoneNumber = phoneNumber;
+    // Constructor chỉ chứa các biến mở rộng
+    public MonthlyPassDTO(String statusBadge, String slotCode, String typeName) {
         this.statusBadge = statusBadge;
+        this.slotCode = slotCode;
+        this.typeName = typeName;
     }
 
-    public MonthlyPassDTO(String customerName, String phoneNumber, String statusBadge, int passID, int userID, int slotID, String licensePlate, int typeID, Date startDate, Date endDate, boolean isActive) {
-        super(passID, userID, slotID, licensePlate, typeID, startDate, endDate, isActive);
-        this.customerName = customerName;
-        this.phoneNumber = phoneNumber;
+    // Constructor đầy đủ gọi cả super() từ MonthlyPass
+    public MonthlyPassDTO(int passId, String customerName, String phoneNumber, int slotId, String licensePlate, int typeId, Date startDate, Date endDate, boolean isActive, String statusBadge, String slotCode, String typeName) {
+        // Truyền các biến gốc lên class cha (MonthlyPass)
+        super(passId, customerName, phoneNumber, slotId, licensePlate, typeId, startDate, endDate, isActive);
+
+        // Gán các biến mở rộng của DTO
         this.statusBadge = statusBadge;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.slotCode = slotCode;
+        this.typeName = typeName;
     }
 
     public String getStatusBadge() {
@@ -55,4 +45,22 @@ public class MonthlyPassDTO extends MonthlyPass {
     public void setStatusBadge(String statusBadge) {
         this.statusBadge = statusBadge;
     }
+
+    public String getSlotCode() {
+        return slotCode;
+    }
+
+    public void setSlotCode(String slotCode) {
+        this.slotCode = slotCode;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+    
+    
 }

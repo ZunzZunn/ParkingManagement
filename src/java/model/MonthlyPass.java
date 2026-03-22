@@ -12,11 +12,12 @@ import java.sql.Date;
  */
 public class MonthlyPass {
 
-    private int passID;
-    private int userID;
-    private int slotID;
+    private int passId;
+    private String customerName;
+    private String phoneNumber;
+    private int slotId;
     private String licensePlate;
-    private int typeID;
+    private int typeId;
     private Date startDate;
     private Date endDate;
     private boolean isActive;
@@ -24,39 +25,49 @@ public class MonthlyPass {
     public MonthlyPass() {
     }
 
-    public MonthlyPass(int passID, int userID, int slotID, String licensePlate, int typeID, Date startDate, Date endDate, boolean isActive) {
-        this.passID = passID;
-        this.userID = userID;
-        this.slotID = slotID;
+    public MonthlyPass(int passId, String customerName, String phoneNumber, int slotId, String licensePlate, int typeId, Date startDate, Date endDate, boolean isActive) {
+        this.passId = passId;
+        this.customerName = customerName;
+        this.phoneNumber = phoneNumber;
+        this.slotId = slotId;
         this.licensePlate = licensePlate;
-        this.typeID = typeID;
+        this.typeId = typeId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isActive = isActive;
     }
 
-    public int getPassID() {
-        return passID;
+    // --- GETTERS & SETTERS ---
+    public int getPassId() {
+        return passId;
     }
 
-    public void setPassID(int passID) {
-        this.passID = passID;
+    public void setPassId(int passId) {
+        this.passId = passId;
     }
 
-    public int getUserID() {
-        return userID;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
-    public int getSlotID() {
-        return slotID;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setSlotID(int slotID) {
-        this.slotID = slotID;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public int getSlotId() {
+        return slotId;
+    }
+
+    public void setSlotId(int slotId) {
+        this.slotId = slotId;
     }
 
     public String getLicensePlate() {
@@ -67,12 +78,12 @@ public class MonthlyPass {
         this.licensePlate = licensePlate;
     }
 
-    public int getTypeID() {
-        return typeID;
+    public int getTypeId() {
+        return typeId;
     }
 
-    public void setTypeID(int typeID) {
-        this.typeID = typeID;
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
     }
 
     public Date getStartDate() {
