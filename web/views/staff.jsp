@@ -67,40 +67,35 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        <td>
-                                            <div style="display: flex; gap: 8px; align-items: center;">
-                                                <button class="btn-text btn-edit" 
-                                                        style="color: var(--apple-blue); background: rgba(0, 113, 227, 0.1); padding: 6px 12px; border-radius: 6px; font-size: 13px;" 
-                                                        data-id="${staff.userID}" 
-                                                        data-name="${staff.fullName}" 
-                                                        data-phone="${staff.phoneNumber}" 
-                                                        data-email="${staff.email}" 
-                                                        data-role="${staff.roleID}">
-                                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                        <td style="display: flex; gap: 15px; align-items: center;">
+                                            <button class="btn-text btn-edit" style="color: #0071e3;" 
+                                                    data-id="${staff.userID}" 
+                                                    data-name="${staff.fullName}" 
+                                                    data-phone="${staff.phoneNumber}" 
+                                                    data-email="${staff.email}" 
+                                                    data-role="${staff.roleID}">
+                                                <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                            </button>
+
+                                            <form action="${pageContext.request.contextPath}/staff" method="POST" style="margin: 0;">
+                                                <input type="hidden" name="action" value="toggleStatus">
+                                                <input type="hidden" name="staffId" value="${staff.userID}">
+                                                <input type="hidden" name="currentStatus" value="${staff.isActive}">
+                                                <button type="submit" class="btn-text" style="color: ${staff.isActive ? '#ff9500' : '#34c759'};" 
+                                                        onclick="return confirm('Đổi trạng thái tài khoản này?')">
+                                                    <i class="fa-solid ${staff.isActive ? 'fa-lock' : 'fa-unlock'}"></i> 
+                                                    ${staff.isActive ? 'Khóa' : 'Mở'}
                                                 </button>
+                                            </form>
 
-                                                <form action="${pageContext.request.contextPath}/staff" method="POST" style="margin: 0;">
-                                                    <input type="hidden" name="action" value="toggleStatus">
-                                                    <input type="hidden" name="staffId" value="${staff.userID}">
-                                                    <input type="hidden" name="currentStatus" value="${staff.isActive}">
-                                                    <button type="submit" class="btn-text" 
-                                                            style="color: ${staff.isActive ? '#ff9500' : '#34c759'}; background: ${staff.isActive ? 'rgba(255, 149, 0, 0.1)' : 'rgba(52, 199, 89, 0.1)'}; padding: 6px 12px; border-radius: 6px; font-size: 13px;" 
-                                                            onclick="return confirm('Đổi trạng thái tài khoản này?')">
-                                                        <i class="fa-solid ${staff.isActive ? 'fa-lock' : 'fa-unlock'}"></i> 
-                                                        ${staff.isActive ? 'Khóa' : 'Mở'}
-                                                    </button>
-                                                </form>
-
-                                                <form action="${pageContext.request.contextPath}/staff" method="POST" style="margin: 0;">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="staffId" value="${staff.userID}">
-                                                    <button type="submit" class="btn-text" 
-                                                            style="color: #ff3b30; background: rgba(255, 59, 48, 0.1); padding: 6px 12px; border-radius: 6px; font-size: 13px;" 
-                                                            onclick="return confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN nhân viên này? Hành động này không thể hoàn tác!')">
-                                                        <i class="fa-solid fa-trash"></i> Xóa
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <form action="${pageContext.request.contextPath}/staff" method="POST" style="margin: 0;">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="staffId" value="${staff.userID}">
+                                                <button type="submit" class="btn-text" style="color: #ff3b30;" 
+                                                        onclick="return confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN nhân viên này? Hành động này không thể hoàn tác!')">
+                                                    <i class="fa-solid fa-trash"></i> Xóa
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 </c:forEach>

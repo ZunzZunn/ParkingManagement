@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import dal.UserDAO;
 import model.User;
-import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpSession;
 
 public class StaffController extends HttpServlet {
 
@@ -32,7 +32,10 @@ public class StaffController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        User account = (User) request.getSession().getAttribute("account");
+        // Lấy session để cài đặt thông báo (alert) hiển thị lên JSP
+        HttpSession session = request.getSession();
+        User account = (User) session.getAttribute("account");
+
         if (account == null || account.getRoleID() != 1) {
             response.sendRedirect(request.getContextPath() + "/admin-dashboard");
             return;
@@ -42,50 +45,56 @@ public class StaffController extends HttpServlet {
         String action = request.getParameter("action");
         UserDAO dao = new UserDAO();
 
-        if ("add".equals(action)) {
-            String fullName = request.getParameter("fullName");
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-            String phoneNumber = request.getParameter("phoneNumber");
-            String email = request.getParameter("email");
-            int roleId = Integer.parseInt(request.getParameter("roleId"));
+        try {
+            if ("add".equals(action)) {
+                String fullName = request.getParameter("fullName");
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
+                String phoneNumber = request.getParameter("phoneNumber");
+                String email = request.getParameter("email");
 
-            String result = dao.addStaff(fullName, username, password, phoneNumber, email, roleId);
+                // JSP đang gửi lên biến name="roleId" với value là 1 hoặc 2
+                int roleId = Integer.parseInt(request.getParameter("roleId"));
 
-            if (!"SUCCESS".equals(result)) {
-                // Nếu SQL Server báo lỗi trùng lặp (UNIQUE KEY)
-                if (result.contains("Violation of UNIQUE KEY constraint") || result.contains("duplicate key")) {
-                    request.getSession().setAttribute("dbMessage", "Lỗi: Tên đăng nhập hoặc Email này đã tồn tại trong hệ thống!");
+                dao.addStaff(fullName, username, password, phoneNumber, email, roleId);
+                session.setAttribute("dbMessage", "Thêm nhân viên thành công!");
+
+            } else if ("edit".equals(action)) {
+                // Bổ sung logic Sửa (Edit) vì trong JSP của bạn có form này
+                int staffId = Integer.parseInt(request.getParameter("staffId"));
+                String fullName = request.getParameter("fullName");
+                String phoneNumber = request.getParameter("phoneNumber");
+                String email = request.getParameter("email");
+                int roleId = Integer.parseInt(request.getParameter("roleId"));
+
+                dao.updateStaff(staffId, fullName, phoneNumber, email, roleId);
+                session.setAttribute("dbMessage", "Cập nhật thông tin thành công!");
+
+            } else if ("toggleStatus".equals(action)) {
+                int staffId = Integer.parseInt(request.getParameter("staffId"));
+                boolean currentStatus = Boolean.parseBoolean(request.getParameter("currentStatus"));
+
+                dao.toggleStaffStatus(staffId, !currentStatus);
+                session.setAttribute("dbMessage", "Đã thay đổi trạng thái tài khoản!");
+
+            } else if ("delete".equals(action)) {
+                int staffId = Integer.parseInt(request.getParameter("staffId"));
+
+                // Gọi hàm xóa và kiểm tra kết quả
+                boolean isDeleted = dao.deleteStaff(staffId);
+
+                if (isDeleted) {
+                    session.setAttribute("dbMessage", "Đã xóa nhân viên thành công!");
                 } else {
-                    request.getSession().setAttribute("dbMessage", "Lỗi hệ thống: " + result);
+                    // Nếu trả về false -> Bị vướng khóa ngoại do nhân viên này đã có lịch sử giao dịch
+                    session.setAttribute("dbMessage", "LỖI: Không thể xóa! Nhân viên này đã có dữ liệu tạo vé hoặc thu tiền trên hệ thống. Vui lòng dùng chức năng Khóa tài khoản.");
                 }
-            } else {
-                request.getSession().setAttribute("dbMessage", "Thêm nhân viên thành công!");
             }
-
-        } else if ("edit".equals(action)) {
-            // ... (Phần sửa, khóa, xóa mình giữ nguyên cho gọn)
-            int staffId = Integer.parseInt(request.getParameter("staffId"));
-            String fullName = request.getParameter("fullName");
-            String phoneNumber = request.getParameter("phoneNumber");
-            String email = request.getParameter("email");
-            int roleId = Integer.parseInt(request.getParameter("roleId"));
-            dao.updateStaff(staffId, fullName, phoneNumber, email, roleId);
-            request.getSession().setAttribute("dbMessage", "Cập nhật thông tin thành công!");
-
-        } else if ("toggleStatus".equals(action)) {
-            int staffId = Integer.parseInt(request.getParameter("staffId"));
-            boolean currentStatus = Boolean.parseBoolean(request.getParameter("currentStatus"));
-            dao.toggleStaffStatus(staffId, !currentStatus);
-            request.getSession().setAttribute("dbMessage", "Đã thay đổi trạng thái tài khoản!");
-
-        } else if ("delete".equals(action)) {
-            int staffId = Integer.parseInt(request.getParameter("staffId"));
-            dao.deleteStaff(staffId);
-            request.getSession().setAttribute("dbMessage", "Đã xóa nhân viên thành công!");
+        } catch (Exception e) {
+            session.setAttribute("dbMessage", "Có lỗi xảy ra: " + e.getMessage());
         }
 
-        // Làm xong thì quay về trang staff để hiện thông báo
+        // Sau khi xử lý xong, load lại trang staff. Thông báo sẽ được alert ra màn hình!
         response.sendRedirect("staff");
     }
 }
