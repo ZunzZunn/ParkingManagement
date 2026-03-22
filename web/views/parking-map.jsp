@@ -135,7 +135,15 @@
                         // Ô ĐÃ ĐẶT TRƯỚC (Reserved)
                         modalBody.innerHTML = `
                         <div style="background: rgba(255, 149, 0, 0.1); color: #ff9500; padding: 8px 16px; border-radius: 12px; display: inline-block; margin-bottom: 20px; font-weight: 600;">Trạng thái: Đã đặt vé tháng</div>
-                        <p style="color: var(--apple-text-light); line-height: 1.5; background: var(--apple-bg-grey); padding: 16px; border-radius: 12px;">Ô đỗ này đã được khách hàng thuê cố định. Không khả dụng cho xe vãng lai.</p>
+                        
+                        <div style="background: var(--apple-bg-grey); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--apple-border);">
+                            <p style="margin: 0 0 8px;"><i class="fa-solid fa-user" style="color: var(--apple-text-light); width: 24px;"></i> Khách hàng: <strong>\${data.customerName || 'Không rõ'}</strong></p>
+                            <p style="margin: 0 0 8px;"><i class="fa-solid fa-phone" style="color: var(--apple-text-light); width: 24px;"></i> Số điện thoại: <strong>\${data.customerPhone || '---'}</strong></p>
+                            <p style="margin: 0 0 8px;"><i class="fa-solid fa-car-side" style="color: var(--apple-text-light); width: 24px;"></i> Biển số xe: <strong>\${data.monthlyPlate || '---'}</strong></p>
+                            <p style="margin: 0;"><i class="fa-regular fa-calendar-xmark" style="color: var(--apple-text-light); width: 24px;"></i> Hạn đăng ký: <strong style="color: var(--apple-text-dark);">\${data.endDate || '---'}</strong></p>
+                        </div>
+
+                        <p style="color: var(--apple-text-light); line-height: 1.5; font-size: 14px; text-align: center;">Ô đỗ này đã được khách hàng thuê cố định. Không khả dụng cho xe vãng lai.</p>
                     `;
                     }
                 } catch (e) {

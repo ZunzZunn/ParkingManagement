@@ -53,8 +53,13 @@ public class ParkingSlotDAO extends DBContext {
     // 1. Lấy chi tiết ô đỗ (Trả về chuỗi JSON để gọi bằng AJAX cho mượt)
     public String getSlotDetailJson(int slotId) {
         String json = "{}";
-        String sql = "SELECT s.SlotID, s.SlotCode, s.Status, s.TypeID, t.TicketID, t.LicensePlate, FORMAT(t.CheckInTime, 'HH:mm - dd/MM/yyyy') as CheckInTime "
-                + "FROM ParkingSlots s LEFT JOIN Tickets t ON s.SlotID = t.SlotID AND t.Status = 'Active' "
+        // Cập nhật SQL: Lấy thêm thông tin từ bảng MonthlyPasses đang Active
+        String sql = "SELECT s.SlotID, s.SlotCode, s.Status, s.TypeID, "
+                + "t.TicketID, t.LicensePlate, FORMAT(t.CheckInTime, 'HH:mm - dd/MM/yyyy') as CheckInTime, "
+                + "m.CustomerName, m.PhoneNumber, m.LicensePlate AS MonthlyPlate, FORMAT(m.EndDate, 'dd/MM/yyyy') AS EndDate "
+                + "FROM ParkingSlots s "
+                + "LEFT JOIN Tickets t ON s.SlotID = t.SlotID AND t.Status = 'Active' "
+                + "LEFT JOIN MonthlyPasses m ON s.SlotID = m.SlotID AND m.IsActive = 1 "
                 + "WHERE s.SlotID = ?";
         try {
             java.sql.PreparedStatement st = connection.prepareStatement(sql);
@@ -67,7 +72,12 @@ public class ParkingSlotDAO extends DBContext {
                         + "\"status\":\"" + rs.getString("Status") + "\","
                         + "\"typeId\":" + rs.getInt("TypeID") + ","
                         + "\"licensePlate\":\"" + (rs.getString("LicensePlate") == null ? "" : rs.getString("LicensePlate")) + "\","
-                        + "\"checkInTime\":\"" + (rs.getString("CheckInTime") == null ? "" : rs.getString("CheckInTime")) + "\""
+                        + "\"checkInTime\":\"" + (rs.getString("CheckInTime") == null ? "" : rs.getString("CheckInTime")) + "\","
+                        // Thêm 4 trường dữ liệu khách hàng vé tháng vào JSON
+                        + "\"customerName\":\"" + (rs.getString("CustomerName") == null ? "" : rs.getString("CustomerName")) + "\","
+                        + "\"customerPhone\":\"" + (rs.getString("PhoneNumber") == null ? "" : rs.getString("PhoneNumber")) + "\","
+                        + "\"monthlyPlate\":\"" + (rs.getString("MonthlyPlate") == null ? "" : rs.getString("MonthlyPlate")) + "\","
+                        + "\"endDate\":\"" + (rs.getString("EndDate") == null ? "" : rs.getString("EndDate")) + "\""
                         + "}";
             }
         } catch (Exception e) {
@@ -145,7 +155,7 @@ public class ParkingSlotDAO extends DBContext {
         }
         return false;
     }
-    
+
     // Đổi trạng thái ô đỗ (Dùng để chuyển sang Bảo trì hoặc Mở lại)
     public boolean updateSlotStatus(int slotId, String status) {
         String sql = "UPDATE ParkingSlots SET Status = ? WHERE SlotID = ?";
@@ -154,7 +164,9 @@ public class ParkingSlotDAO extends DBContext {
             st.setString(1, status);
             st.setInt(2, slotId);
             return st.executeUpdate() > 0;
-        } catch (Exception e) { System.out.println(e.getMessage()); }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 }

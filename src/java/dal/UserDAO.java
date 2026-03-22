@@ -7,6 +7,7 @@ package dal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import model.User;
 
 /**
@@ -170,6 +171,77 @@ public class UserDAO extends DBContext {
             return st.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    // 1. Lấy danh sách nhân viên (Giả sử RoleID 1 là Admin, 2 là Staff, bỏ qua Role User thường nếu có)
+    public List<User> getAllStaff() {
+        List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE RoleID IN (1, 2)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                list.add(new User(
+                        rs.getInt("UserID"), rs.getString("Username"), rs.getString("PasswordHash"),
+                        rs.getString("FullName"), rs.getString("PhoneNumber"), rs.getInt("RoleID"),
+                        rs.getBoolean("IsActive"), rs.getString("Email"), rs.getDate("DateOfBirth"),
+                        rs.getString("Avatar"), rs.getBoolean("IsEmailVerified")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi tại getAllStaff: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // 2. Thêm nhân viên mới
+    public boolean addStaff(String fullName, String username, String passwordHash, String phoneNumber, int roleId) {
+        // Mặc định tài khoản mới tạo ra là IsActive = 1 (True), IsEmailVerified = 0 (False)
+        String sql = "INSERT INTO Users (FullName, Username, PasswordHash, PhoneNumber, RoleID, IsActive, IsEmailVerified) VALUES (?, ?, ?, ?, ?, 1, 0)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, fullName);
+            st.setString(2, username);
+            st.setString(3, passwordHash);
+            st.setString(4, phoneNumber);
+            st.setInt(5, roleId);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Lỗi tại addStaff: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 3. Khóa / Mở khóa tài khoản nhân viên
+    public boolean toggleStaffStatus(int userId, boolean isActive) {
+        String sql = "UPDATE Users SET IsActive = ? WHERE UserID = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setBoolean(1, isActive);
+            st.setInt(2, userId);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Lỗi tại toggleStaffStatus: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean addStaff(String fullName, String username, String passwordHash, String phoneNumber, String email, int roleId) {
+        // Thêm trường Email vào câu lệnh INSERT
+        String sql = "INSERT INTO Users (FullName, Username, PasswordHash, PhoneNumber, Email, RoleID, IsActive, IsEmailVerified) VALUES (?, ?, ?, ?, ?, ?, 1, 0)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, fullName);
+            st.setString(2, username);
+            st.setString(3, passwordHash);
+            st.setString(4, phoneNumber);
+            st.setString(5, email); // Truyền giá trị Email vào dấu ? thứ 5
+            st.setInt(6, roleId);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Lỗi tại addStaff: " + e.getMessage());
         }
         return false;
     }

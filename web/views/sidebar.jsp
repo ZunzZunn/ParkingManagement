@@ -19,7 +19,21 @@
 
     <ul class="nav-links">
         <li class="${param.activePage == 'dashboard' ? 'active' : ''}">
-            <a href="${pageContext.request.contextPath}/admin-dashboard"><i class="fa-solid fa-house"></i> Tổng quan</a>
+            <c:choose>
+                <%-- Nếu là Admin (RoleID = 1) -> Vào admin-dashboard --%>
+                <c:when test="${sessionScope.account != null && sessionScope.account.roleID == 1}">
+                    <a href="${pageContext.request.contextPath}/admin-dashboard">
+                        <i class="fa-solid fa-house"></i> Tổng quan
+                    </a>
+                </c:when>
+
+                <%-- Nếu là Nhân viên (RoleID = 2) -> Vào trang staff --%>
+                <c:when test="${sessionScope.account != null && sessionScope.account.roleID == 2}">
+                    <a href="${pageContext.request.contextPath}/staff-dashboard">
+                        <i class="fa-solid fa-house"></i> Tổng quan
+                    </a>
+                </c:when>
+            </c:choose>
         </li>
         <li class="${param.activePage == 'parking-map' ? 'active' : ''}">
             <a href="${pageContext.request.contextPath}/parking-map"><i class="fa-solid fa-map-location-dot"></i> Sơ đồ bãi xe</a>
@@ -30,12 +44,14 @@
         <li class="${param.activePage == 'transactions' ? 'active' : ''}">
             <a href="${pageContext.request.contextPath}/transactions"><i class="fa-solid fa-clock-rotate-left"></i> Quản lý Giao dịch</a>
         </li>
-        <li class="${param.activePage == 'revenue' ? 'active' : ''}">
-            <a href="#"><i class="fa-solid fa-chart-line"></i> Doanh thu</a>
-        </li>
-        <li class="${param.activePage == 'staff' ? 'active' : ''}">
-            <a href="#"><i class="fa-solid fa-users"></i> Nhân viên</a>
-        </li>
+        <c:if test="${account != null && account.roleID == 1}">
+            <li class="${param.activePage == 'revenue' ? 'active' : ''}">
+                <a href="${pageContext.request.contextPath}/revenue"><i class="fa-solid fa-chart-line"></i> Doanh thu</a>
+            </li>
+            <li class="${param.activePage == 'staff' ? 'active' : ''}">
+                <a href="${pageContext.request.contextPath}/staff"><i class="fa-solid fa-users"></i> Nhân viên</a>
+            </li>
+        </c:if>
     </ul>
 
     <div class="user-profile">

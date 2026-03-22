@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.sql.Date;
+
 /**
  *
  * @author ZunzZunn
@@ -14,15 +16,23 @@ public class SlotDTO {
     private String slotCode;
     private int typeId;
     private String zone;
+    private String customerName;
+    private String customerPhone;
+    private String monthlyPlate;
+    private Date passEndDate;
 
     public SlotDTO() {
     }
 
-    public SlotDTO(int slotId, String slotCode, int typeId, String zone) {
+    public SlotDTO(int slotId, String slotCode, int typeId, String zone, String customerName, String customerPhone, String monthlyPlate, Date passEndDate) {
         this.slotId = slotId;
         this.slotCode = slotCode;
         this.typeId = typeId;
         this.zone = zone;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.monthlyPlate = monthlyPlate;
+        this.passEndDate = passEndDate;
     }
 
     public int getSlotId() {
@@ -56,4 +66,37 @@ public class SlotDTO {
     public void setZone(String zone) {
         this.zone = zone;
     }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public String getMonthlyPlate() {
+        return monthlyPlate;
+    }
+
+    public void setMonthlyPlate(String monthlyPlate) {
+        this.monthlyPlate = monthlyPlate;
+    }
+
+    public Date getPassEndDate() {
+        return passEndDate;
+    }
+
+    public void setPassEndDate(Date passEndDate) {
+        this.passEndDate = passEndDate;
+    }
+
 }
