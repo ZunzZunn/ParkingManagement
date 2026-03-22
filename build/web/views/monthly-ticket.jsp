@@ -69,7 +69,7 @@
                                     <th>Khách hàng</th>
                                     <th>SĐT</th>
                                     <th>Biển số</th>
-                                    <th>Ngày đăng ký</th>
+                                    <th>Khu vực (Ô đỗ)</th> <th>Ngày đăng ký</th>
                                     <th>Ngày hết hạn</th>
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
@@ -78,10 +78,13 @@
                             <tbody id="tableBody">
                                 <c:forEach items="${passes}" var="p">
                                     <tr>
-                                        <td><strong>#${p.passID}</strong></td>
+                                        <td><strong>#${p.passId}</strong></td>
                                         <td>${p.customerName}</td>
                                         <td>${p.phoneNumber}</td>
                                         <td><strong>${p.licensePlate}</strong></td>
+
+                                        <td>${p.slotCode}</td>
+
                                         <td><fmt:formatDate value="${p.startDate}" pattern="dd/MM/yyyy"/></td>
                                         <td><strong style="color: var(--apple-text-dark);"><fmt:formatDate value="${p.endDate}" pattern="dd/MM/yyyy"/></strong></td>
                                         <td>
@@ -98,8 +101,11 @@
                                             </c:choose>
                                         </td>
                                         <td>
-                                            <button class="btn-text btn-renew" data-id="${p.passID}" data-plate="${p.licensePlate}" data-name="${p.customerName}">
+                                            <button class="btn-text btn-renew" data-id="${p.passId}" data-plate="${p.licensePlate}" data-name="${p.customerName}">
                                                 <i class="fa-solid fa-rotate"></i> Gia hạn
+                                            </button>
+                                            <button class="btn-text btn-history" data-id="${p.passId}" style="color: #5856d6;">
+                                                <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử
                                             </button>
                                         </td>
                                     </tr>
@@ -131,6 +137,23 @@
                     <div class="form-group">
                         <label>Biển số xe</label>
                         <input type="text" name="licensePlate" class="form-control auto-format-plate" placeholder="VD: 29A-123.45" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Loại phương tiện</label>
+                        <select name="typeId" id="vehicleTypeSelect" class="form-control" required>
+                            <option value="1">Xe máy</option>
+                            <option value="2">Ô tô 4-5 chỗ</option>
+                            <option value="3">Xe đạp / Xe điện</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Khu vực (Ô đỗ)</label>
+                        <select name="slotId" id="slotSelect" class="form-control" required>
+                            <option value="">-- Chọn ô đỗ trống --</option>
+                            <c:forEach items="${emptySlots}" var="s">
+                                <option value="${s.slotId}" data-type="${s.typeId}">[${s.zone}] - ${s.slotCode}</option>
+                            </c:forEach>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Gói gia hạn</label>
@@ -177,6 +200,29 @@
                         <i class="fa-solid fa-rotate"></i> Xác nhận gia hạn
                     </button>
                 </form>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="historyModal">
+            <div class="modal-content" style="width: 800px; max-width: 95%;">
+                <div class="modal-header">
+                    <h2>Lịch sử Gia hạn</h2>
+                    <button class="btn-close" id="btnCloseHistoryModal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body" style="padding: 20px 0;">
+                    <table class="apple-table" style="margin: 0;">
+                        <thead>
+                            <tr>
+                                <th>Thời gian giao dịch</th>
+                                <th>Gói gia hạn</th>
+                                <th>Hạn mới sau giao dịch</th>
+                                <th>Người thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -356,6 +402,76 @@
             window.addEventListener('click', (e) => {
                 if (e.target === renewModal) {
                     renewModal.classList.remove('active');
+                }
+            });
+        </script>
+
+        <script>
+            // XỬ LÝ LỌC Ô ĐỖ THEO LOẠI XE
+            document.addEventListener("DOMContentLoaded", function () {
+                const vehicleTypeSelect = document.getElementById('vehicleTypeSelect');
+                const slotSelect = document.getElementById('slotSelect');
+
+                function filterSlots() {
+                    const selectedType = vehicleTypeSelect.value;
+                    const options = slotSelect.querySelectorAll('option');
+
+                    // Reset lại lựa chọn khi đổi loại xe
+                    slotSelect.value = "";
+
+                    options.forEach(option => {
+                        // Bỏ qua tùy chọn mặc định đầu tiên
+                        if (option.value === "")
+                            return;
+
+                        // Ẩn/hiện dựa trên data-type có khớp với loại xe được chọn hay không
+                        if (option.getAttribute('data-type') === selectedType) {
+                            option.hidden = false;
+                        } else {
+                            option.hidden = true;
+                        }
+                    });
+                }
+
+                // Gọi hàm lọc ngay khi form vừa mở lên (để lọc theo "Xe máy" là giá trị mặc định)
+                filterSlots();
+
+                // Lắng nghe sự kiện mỗi khi người dùng đổi loại xe
+                vehicleTypeSelect.addEventListener('change', filterSlots);
+
+                // (Tùy chọn) Khi mở Modal thêm mới, chạy lại bộ lọc cho chắc chắn
+                document.getElementById('btnOpenModal').addEventListener('click', filterSlots);
+            });
+        </script>
+
+        <script>
+            const historyModal = document.getElementById('historyModal');
+
+            document.addEventListener('click', async function (e) {
+                // 1. Mở Modal Lịch sử
+                const btnHistory = e.target.closest('.btn-history');
+                if (btnHistory) {
+                    e.preventDefault();
+                    const passId = btnHistory.getAttribute('data-id');
+                    const tbody = document.getElementById('historyTableBody');
+
+                    // Hiện trạng thái đang tải
+                    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Đang tải dữ liệu...</td></tr>";
+                    historyModal.classList.add('active');
+
+                    // Gọi AJAX lấy lịch sử từ Controller
+                    try {
+                        const response = await fetch('monthly-ticket?action=getHistory&passId=' + passId);
+                        const htmlText = await response.text();
+                        tbody.innerHTML = htmlText; // Đổ kết quả vào bảng
+                    } catch (error) {
+                        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Lỗi khi tải dữ liệu</td></tr>";
+                    }
+                }
+
+                // 2. Đóng Modal
+                if (e.target === historyModal || e.target.closest('#btnCloseHistoryModal')) {
+                    historyModal.classList.remove('active');
                 }
             });
         </script>

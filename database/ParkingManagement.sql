@@ -63,6 +63,15 @@ CREATE TABLE MonthlyPasses (
     IsActive BIT DEFAULT 1
 );
 
+CREATE TABLE RenewalHistory (
+    HistoryID INT PRIMARY KEY IDENTITY(1,1),
+    PassID INT FOREIGN KEY REFERENCES MonthlyPasses(PassID) ON DELETE CASCADE,
+    RenewDate DATETIME DEFAULT GETDATE(),
+    DurationMonths INT,
+    NewEndDate DATE,
+    RenewedBy INT FOREIGN KEY REFERENCES Users(UserID) -- Lưu ID nhân viên thao tác
+);
+
 CREATE TABLE Tickets (
     TicketID INT PRIMARY KEY IDENTITY(1,1),
     LicensePlate VARCHAR(20) NOT NULL,
@@ -130,6 +139,25 @@ INSERT INTO MonthlyPasses (CustomerName, PhoneNumber, SlotID, LicensePlate, Type
 (N'Trần Thị B', '0912345678', 9, '30A-222.22', 2, '2026-03-01', '2026-04-01'),  -- khach02 (Chỗ B-01) - Còn hạn
 (N'Lê Văn C', '0909090909', 11, '30A-333.33', 2, '2026-02-15', '2026-08-15'), -- khach03 (Chỗ B-03) - Còn hạn
 (N'Phạm Quang D', '0944556677', 7, '29M1-555.55', 1, '2026-01-01', '2026-02-01'); -- khach05 (Chỗ A-07) - ĐÃ HẾT HẠN (Để test logic từ chối vào bãi)
+
+-- ==========================================
+-- 3.7. Dữ liệu mẫu cho Lịch sử gia hạn vé tháng (RenewalHistory)
+-- ==========================================
+-- Lưu ý: PassID tương ứng với thứ tự insert trong bảng MonthlyPasses
+
+INSERT INTO RenewalHistory (PassID, RenewDate, DurationMonths, NewEndDate, RenewedBy) VALUES 
+-- 1. Khách Nguyễn Văn A: Đăng ký gói 12 tháng (Do Admin UserID=1 thao tác)
+(1, '2026-01-01 08:30:00', 12, '2026-12-31', 1),
+
+-- 2. Khách Trần Thị B: Đăng ký gói 1 tháng 
+(2, '2026-03-01 09:15:00', 1, '2026-04-01', 1),
+
+-- 3. Khách Lê Văn C: Đăng ký 3 tháng, sau đó gia hạn thêm 3 tháng
+(3, '2026-02-15 10:00:00', 3, '2026-05-15', 1), 
+(3, '2026-03-10 14:20:00', 3, '2026-08-15', 1), 
+
+-- 4. Khách Phạm Quang D: Đăng ký gói 1 tháng từ đầu năm
+(4, '2026-01-01 16:45:00', 1, '2026-02-01', 1);
 
 -- 3.6. Lịch sử giao dịch (Tickets)
 -- [A] CÁC XE ĐANG GỬI TRONG BÃI (Active) -> Khớp với 5 chỗ Occupied ở trên

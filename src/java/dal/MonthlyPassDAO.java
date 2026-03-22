@@ -37,7 +37,9 @@ public class MonthlyPassDAO extends DBContext {
         // Dùng StringBuilder để nối câu lệnh SQL động
         // Đã bỏ LEFT JOIN với bảng Users, lấy trực tiếp từ bảng MonthlyPasses
         StringBuilder sql = new StringBuilder(
-                "SELECT * FROM MonthlyPasses m WHERE 1=1 "
+                "SELECT m.*, p.SlotCode FROM MonthlyPasses m "
+                + "LEFT JOIN ParkingSlots p ON m.SlotID = p.SlotID "
+                + "WHERE 1=1 "
         );
 
         // 1. Lọc theo biển số
@@ -79,6 +81,8 @@ public class MonthlyPassDAO extends DBContext {
 
                 // Đã xóa dòng dto.setUserID(...) vì database không còn UserID nữa
                 dto.setSlotId(rs.getInt("SlotID"));
+                String slotCode = rs.getString("SlotCode");
+                dto.setSlotCode(slotCode != null ? slotCode : "Chưa xếp");
                 dto.setLicensePlate(rs.getString("LicensePlate"));
                 dto.setTypeId(rs.getInt("TypeID"));
                 dto.setStartDate(rs.getDate("StartDate"));
@@ -106,6 +110,123 @@ public class MonthlyPassDAO extends DBContext {
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public boolean addMonthlyPass(String customerName, String phoneNumber, int slotId, String licensePlate, int typeId, int durationMonths) {
+        String sql = "INSERT INTO MonthlyPasses (CustomerName, PhoneNumber, SlotID, LicensePlate, TypeID, StartDate, EndDate, IsActive) "
+                + "VALUES (?, ?, ?, ?, ?, GETDATE(), DATEADD(month, ?, GETDATE()), 1)";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            st.setNString(1, customerName);
+            st.setString(2, phoneNumber);
+            st.setInt(3, slotId); // Truyền ID ô đỗ vào Database
+            st.setString(4, licensePlate);
+            st.setInt(5, typeId);
+            st.setInt(6, durationMonths);
+            return st.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi addMonthlyPass: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 2. Gia hạn vé tháng
+    public boolean renewMonthlyPass(int passId, int durationMonths, int renewedBy) {
+        String updateSql = "UPDATE MonthlyPasses SET "
+                + "EndDate = CASE "
+                + "  WHEN EndDate < GETDATE() THEN DATEADD(month, ?, GETDATE()) "
+                + "  ELSE DATEADD(month, ?, EndDate) "
+                + "END, IsActive = 1 "
+                + "WHERE PassID = ?";
+        try {
+            java.sql.PreparedStatement st1 = connection.prepareStatement(updateSql);
+            st1.setInt(1, durationMonths);
+            st1.setInt(2, durationMonths);
+            st1.setInt(3, passId);
+            int rows = st1.executeUpdate();
+
+            if (rows > 0) {
+                String getEndSql = "SELECT EndDate FROM MonthlyPasses WHERE PassID = ?";
+                java.sql.PreparedStatement st2 = connection.prepareStatement(getEndSql);
+                st2.setInt(1, passId);
+                java.sql.ResultSet rs = st2.executeQuery();
+                if (rs.next()) {
+                    java.sql.Date newEnd = rs.getDate("EndDate");
+
+                    // Thêm RenewedBy vào câu lệnh INSERT
+                    String insertHistorySql = "INSERT INTO RenewalHistory (PassID, DurationMonths, NewEndDate, RenewedBy) VALUES (?, ?, ?, ?)";
+                    java.sql.PreparedStatement st3 = connection.prepareStatement(insertHistorySql);
+                    st3.setInt(1, passId);
+                    st3.setInt(2, durationMonths);
+                    st3.setDate(3, newEnd);
+                    st3.setInt(4, renewedBy); // Truyền ID nhân viên vào
+                    st3.executeUpdate();
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi renewMonthlyPass: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 2. THÊM HÀM MỚI: Lấy danh sách ô đỗ còn trống để hiển thị ở Form
+    public java.util.List<java.util.Map<String, Object>> getAvailableSlots() {
+        java.util.List<java.util.Map<String, Object>> list = new java.util.ArrayList<>();
+        String sql = "SELECT SlotID, SlotCode, Zone, TypeID FROM ParkingSlots WHERE Status = 'Available'";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            java.sql.ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                map.put("slotId", rs.getInt("SlotID"));
+                map.put("slotCode", rs.getString("SlotCode"));
+                map.put("zone", rs.getNString("Zone"));
+                map.put("typeId", rs.getInt("TypeID"));
+                list.add(map);
+            }
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
+    // 3. THÊM HÀM MỚI: Đổi trạng thái ô đỗ thành Reserved sau khi khách đăng ký
+    public void updateSlotStatus(int slotId, String status) {
+        String sql = "UPDATE ParkingSlots SET Status = ? WHERE SlotID = ?";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, status);
+            st.setInt(2, slotId);
+            st.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+
+    // 2. Thêm hàm mới để lấy danh sách lịch sử
+    public java.util.List<model.RenewalHistory> getRenewalHistory(int passId) {
+        java.util.List<model.RenewalHistory> list = new java.util.ArrayList<>();
+        // JOIN để lấy FullName của người thao tác
+        String sql = "SELECT r.*, u.FullName FROM RenewalHistory r "
+                + "LEFT JOIN Users u ON r.RenewedBy = u.UserID "
+                + "WHERE r.PassID = ? ORDER BY r.RenewDate DESC";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, passId);
+            java.sql.ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                model.RenewalHistory h = new model.RenewalHistory();
+                h.setHistoryId(rs.getInt("HistoryID"));
+                h.setPassId(rs.getInt("PassID"));
+                h.setRenewDate(rs.getTimestamp("RenewDate"));
+                h.setDurationMonths(rs.getInt("DurationMonths"));
+                h.setNewEndDate(rs.getDate("NewEndDate"));
+                h.setRenewedBy(rs.getInt("RenewedBy"));
+                h.setRenewedByName(rs.getString("FullName")); // Lấy tên nhân viên
+                list.add(h);
+            }
+        } catch (Exception e) {
         }
         return list;
     }
