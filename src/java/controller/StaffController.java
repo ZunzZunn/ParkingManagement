@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import dal.UserDAO;
 import model.User;
+import jakarta.servlet.annotation.WebServlet;
 
 public class StaffController extends HttpServlet {
 
@@ -47,18 +48,44 @@ public class StaffController extends HttpServlet {
             String password = request.getParameter("password");
             String phoneNumber = request.getParameter("phoneNumber");
             String email = request.getParameter("email");
-            String roleStr = request.getParameter("role");
+            int roleId = Integer.parseInt(request.getParameter("roleId"));
 
-            int roleId = "Admin".equals(roleStr) ? 1 : 2;
-            String passwordHash = password;
+            String result = dao.addStaff(fullName, username, password, phoneNumber, email, roleId);
 
-            dao.addStaff(fullName, username, passwordHash, phoneNumber, email, roleId);
+            if (!"SUCCESS".equals(result)) {
+                // Nếu SQL Server báo lỗi trùng lặp (UNIQUE KEY)
+                if (result.contains("Violation of UNIQUE KEY constraint") || result.contains("duplicate key")) {
+                    request.getSession().setAttribute("dbMessage", "Lỗi: Tên đăng nhập hoặc Email này đã tồn tại trong hệ thống!");
+                } else {
+                    request.getSession().setAttribute("dbMessage", "Lỗi hệ thống: " + result);
+                }
+            } else {
+                request.getSession().setAttribute("dbMessage", "Thêm nhân viên thành công!");
+            }
+
+        } else if ("edit".equals(action)) {
+            // ... (Phần sửa, khóa, xóa mình giữ nguyên cho gọn)
+            int staffId = Integer.parseInt(request.getParameter("staffId"));
+            String fullName = request.getParameter("fullName");
+            String phoneNumber = request.getParameter("phoneNumber");
+            String email = request.getParameter("email");
+            int roleId = Integer.parseInt(request.getParameter("roleId"));
+            dao.updateStaff(staffId, fullName, phoneNumber, email, roleId);
+            request.getSession().setAttribute("dbMessage", "Cập nhật thông tin thành công!");
+
         } else if ("toggleStatus".equals(action)) {
             int staffId = Integer.parseInt(request.getParameter("staffId"));
             boolean currentStatus = Boolean.parseBoolean(request.getParameter("currentStatus"));
             dao.toggleStaffStatus(staffId, !currentStatus);
+            request.getSession().setAttribute("dbMessage", "Đã thay đổi trạng thái tài khoản!");
+
+        } else if ("delete".equals(action)) {
+            int staffId = Integer.parseInt(request.getParameter("staffId"));
+            dao.deleteStaff(staffId);
+            request.getSession().setAttribute("dbMessage", "Đã xóa nhân viên thành công!");
         }
 
+        // Làm xong thì quay về trang staff để hiện thông báo
         response.sendRedirect("staff");
     }
 }

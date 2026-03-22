@@ -7,6 +7,7 @@ package dal;
 import model.MonthlyPass;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,18 +115,49 @@ public class MonthlyPassDAO extends DBContext {
         return list;
     }
 
-    public boolean addMonthlyPass(String customerName, String phoneNumber, int slotId, String licensePlate, int typeId, int durationMonths) {
-        String sql = "INSERT INTO MonthlyPasses (CustomerName, PhoneNumber, SlotID, LicensePlate, TypeID, StartDate, EndDate, IsActive) "
+    // Cập nhật hàm addMonthlyPass: Thêm tham số staffId và ghi vào RenewalHistory
+    public boolean addMonthlyPass(String customerName, String phoneNumber, int slotId, String licensePlate, int typeId, int durationMonths, int staffId) {
+        String insertPassSql = "INSERT INTO MonthlyPasses (CustomerName, PhoneNumber, SlotID, LicensePlate, TypeID, StartDate, EndDate, IsActive) "
                 + "VALUES (?, ?, ?, ?, ?, GETDATE(), DATEADD(month, ?, GETDATE()), 1)";
         try {
-            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            // Dùng RETURN_GENERATED_KEYS để lấy ID của vé vừa được tạo
+            java.sql.PreparedStatement st = connection.prepareStatement(insertPassSql, java.sql.Statement.RETURN_GENERATED_KEYS);
             st.setNString(1, customerName);
             st.setString(2, phoneNumber);
-            st.setInt(3, slotId); // Truyền ID ô đỗ vào Database
+            st.setInt(3, slotId);
             st.setString(4, licensePlate);
             st.setInt(5, typeId);
             st.setInt(6, durationMonths);
-            return st.executeUpdate() > 0;
+
+            int affectedRows = st.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Lấy PassID tự tăng vừa được Database tạo ra
+                java.sql.ResultSet rs = st.getGeneratedKeys();
+                if (rs.next()) {
+                    int newPassId = rs.getInt(1);
+
+                    // Lấy Ngày hết hạn (EndDate) vừa được tính toán trong DB
+                    String getEndSql = "SELECT EndDate FROM MonthlyPasses WHERE PassID = ?";
+                    java.sql.PreparedStatement stEnd = connection.prepareStatement(getEndSql);
+                    stEnd.setInt(1, newPassId);
+                    java.sql.ResultSet rsEnd = stEnd.executeQuery();
+
+                    if (rsEnd.next()) {
+                        java.sql.Date newEnd = rsEnd.getDate("EndDate");
+
+                        // GHI NHẬN DOANH THU LẦN ĐẦU VÀO RENEWAL HISTORY
+                        String insertHistorySql = "INSERT INTO RenewalHistory (PassID, DurationMonths, NewEndDate, RenewedBy) VALUES (?, ?, ?, ?)";
+                        java.sql.PreparedStatement stHist = connection.prepareStatement(insertHistorySql);
+                        stHist.setInt(1, newPassId);
+                        stHist.setInt(2, durationMonths);
+                        stHist.setDate(3, newEnd);
+                        stHist.setInt(4, staffId); // ID của nhân viên lập vé
+                        stHist.executeUpdate();
+                    }
+                }
+                return true;
+            }
         } catch (Exception e) {
             System.out.println("Lỗi addMonthlyPass: " + e.getMessage());
         }
@@ -227,6 +259,80 @@ public class MonthlyPassDAO extends DBContext {
                 list.add(h);
             }
         } catch (Exception e) {
+        }
+        return list;
+    }
+
+    // 1. Đếm tổng số lượng vé tháng (Có áp dụng bộ lọc)
+    public int getTotalPassesCount(String search, String status, String typeId) {
+        String sql = "SELECT COUNT(*) FROM MonthlyPasses mp WHERE 1=1 ";
+
+        // Lọc theo từ khóa (Biển số, Tên khách, SĐT)
+        if (search != null && !search.trim().isEmpty()) {
+            sql += " AND (mp.LicensePlate LIKE N'%" + search + "%' OR mp.CustomerName LIKE N'%" + search + "%' OR mp.PhoneNumber LIKE '%" + search + "%') ";
+        }
+        // Lọc theo Trạng thái (Còn hạn / Hết hạn)
+        if (status != null && !status.trim().isEmpty()) {
+            if (status.equals("Active")) {
+                sql += " AND mp.EndDate >= CAST(GETDATE() AS DATE) AND mp.IsActive = 1 ";
+            } else if (status.equals("Expired")) {
+                sql += " AND (mp.EndDate < CAST(GETDATE() AS DATE) OR mp.IsActive = 0) ";
+            }
+        }
+        // Lọc theo Loại xe
+        if (typeId != null && !typeId.trim().isEmpty()) {
+            sql += " AND mp.TypeID = " + typeId;
+        }
+
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
+
+    // 2. Lấy danh sách vé tháng phân trang (Có áp dụng bộ lọc)
+    public List<model.MonthlyPassDTO> getPassesByPage(int page, int pageSize, String search, String status, String typeId) {
+        List<model.MonthlyPassDTO> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT mp.*, vt.TypeName, ps.SlotCode, ps.Zone "
+                + "FROM MonthlyPasses mp "
+                + "JOIN VehicleTypes vt ON mp.TypeID = vt.TypeID "
+                + "LEFT JOIN ParkingSlots ps ON mp.SlotID = ps.SlotID "
+                + "WHERE 1=1 ";
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql += " AND (mp.LicensePlate LIKE N'%" + search + "%' OR mp.CustomerName LIKE N'%" + search + "%' OR mp.PhoneNumber LIKE '%" + search + "%') ";
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            if (status.equals("Active")) {
+                sql += " AND mp.EndDate >= CAST(GETDATE() AS DATE) AND mp.IsActive = 1 ";
+            } else if (status.equals("Expired")) {
+                sql += " AND (mp.EndDate < CAST(GETDATE() AS DATE) OR mp.IsActive = 0) ";
+            }
+        }
+        if (typeId != null && !typeId.trim().isEmpty()) {
+            sql += " AND mp.TypeID = " + typeId;
+        }
+
+        sql += " ORDER BY mp.PassID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, offset);
+            st.setInt(2, pageSize);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                // Tùy vào cách bạn định nghĩa MonthlyPassDTO, code Map dữ liệu sẽ tương tự thế này:
+                // list.add(new MonthlyPassDTO(rs.getInt("PassID"), rs.getString("CustomerName"), ...));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
         }
         return list;
     }

@@ -58,7 +58,7 @@
 
                     <div class="content-card">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <h2>Danh sách Vé tháng</h2>
+                            <h2 id="passCount">Danh sách Vé tháng (${totalPasses != null ? totalPasses : 0} vé)</h2>
                             <button id="btnOpenModal" class="btn-add"><i class="fa-solid fa-plus"></i> Đăng ký vé mới</button>
                         </div>
 
@@ -69,7 +69,8 @@
                                     <th>Khách hàng</th>
                                     <th>SĐT</th>
                                     <th>Biển số</th>
-                                    <th>Khu vực (Ô đỗ)</th> <th>Ngày đăng ký</th>
+                                    <th>Khu vực (Ô đỗ)</th>
+                                    <th>Ngày đăng ký</th>
                                     <th>Ngày hết hạn</th>
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
@@ -110,8 +111,34 @@
                                         </td>
                                     </tr>
                                 </c:forEach>
+
+                                <c:if test="${empty passes}">
+                                    <tr class="empty-row">
+                                        <td colspan="9" style="text-align: center; padding: 30px; color: var(--apple-text-light);">
+                                            Không tìm thấy vé tháng nào phù hợp với bộ lọc.
+                                        </td>
+                                    </tr>
+                                </c:if>
                             </tbody>
                         </table>
+
+                        <c:if test="${totalPages > 1}">
+                            <c:set var="q" value="&licensePlate=${param.licensePlate}&customerInfo=${param.customerInfo}&status=${param.status}" />
+                            <div class="pagination">
+                                <c:if test="${currentPage > 1}">
+                                    <a href="monthly-ticket?page=${currentPage - 1}${q}" class="page-btn"><i class="fa-solid fa-chevron-left"></i></a>
+                                    </c:if>
+
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <a href="monthly-ticket?page=${i}${q}" class="page-btn ${currentPage == i ? 'active' : ''}">${i}</a>
+                                </c:forEach>
+
+                                <c:if test="${currentPage < totalPages}">
+                                    <a href="monthly-ticket?page=${currentPage + 1}${q}" class="page-btn"><i class="fa-solid fa-chevron-right"></i></a>
+                                    </c:if>
+                            </div>
+                        </c:if>
+
                     </div>
                 </section>
             </main>
@@ -298,7 +325,7 @@
             const tableBody = document.getElementById('tableBody');
             let debounceTimer;
 
-            // Hàm lấy dữ liệu với hiệu ứng trượt mượt mà (FLIP Animation)
+            // Hàm lấy dữ liệu với hiệu ứng Mờ đi (Dim) + Trượt mượt mà (FLIP) ĐÃ CẬP NHẬT
             async function fetchTableData(urlParams) {
                 // 1. Ghi lại vị trí các dòng cũ trước khi dữ liệu thay đổi
                 const positions = new Map();
@@ -310,6 +337,10 @@
                     }
                 });
 
+                // --- Hiệu ứng phản hồi tức thì (Dim Effect) ---
+                tableBody.style.transition = 'opacity 0.2s ease';
+                tableBody.style.opacity = '0.4';
+
                 try {
                     const response = await fetch('monthly-ticket?' + urlParams);
                     const html = await response.text();
@@ -318,8 +349,26 @@
                     // 2. Cập nhật DOM nhanh
                     tableBody.innerHTML = doc.getElementById('tableBody').innerHTML;
 
-                    // 3. Kích hoạt hiệu ứng trượt (FLIP)
+                    // Cập nhật số lượng vé trên tiêu đề
+                    const newCount = doc.getElementById('passCount');
+                    if (newCount)
+                        document.getElementById('passCount').innerHTML = newCount.innerHTML;
+
+                    // Cập nhật thanh phân trang
+                    const newPagination = doc.querySelector('.pagination');
+                    const currentPagination = document.querySelector('.pagination');
+                    if (newPagination && currentPagination) {
+                        currentPagination.innerHTML = newPagination.innerHTML;
+                    } else if (newPagination && !currentPagination) {
+                        document.querySelector('.apple-table').insertAdjacentHTML('afterend', newPagination.outerHTML);
+                    } else if (!newPagination && currentPagination) {
+                        currentPagination.remove();
+                    }
+
+                    // 3. Kích hoạt hiệu ứng trượt (FLIP) và khôi phục độ sáng
                     requestAnimationFrame(() => {
+                        tableBody.style.opacity = '1';
+
                         tableBody.querySelectorAll('tr').forEach(row => {
                             const id = row.querySelector('strong')?.innerText;
                             const oldTop = positions.get(id);
@@ -350,48 +399,36 @@
                     window.history.pushState({}, '', 'monthly-ticket?' + urlParams);
                 } catch (e) {
                     console.error("Lỗi tải bảng:", e);
+                    tableBody.style.opacity = '1'; // Phục hồi hiển thị nếu lỗi
                 }
             }
 
             // Bắt sự kiện gõ phím hoặc chọn select
             filterForm.addEventListener('input', (e) => {
                 clearTimeout(debounceTimer);
-                // Gõ chữ thì đợi 250ms mới lọc, chọn select thì lọc luôn
                 const delay = (e.target.type === 'text') ? 250 : 0;
 
                 debounceTimer = setTimeout(() => {
                     const params = new URLSearchParams(new FormData(filterForm));
+                    params.delete('page'); // Bắt buộc về trang 1 khi đổi bộ lọc
                     fetchTableData(params.toString());
                 }, delay);
+            });
+
+            // Xử lý sự kiện khi bấm chuyển trang (Phân trang AJAX)
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('.page-btn');
+                if (btn) {
+                    e.preventDefault();
+                    const url = new URL(btn.href);
+                    fetchTableData(url.searchParams.toString());
+                }
             });
         </script>
 
         <script>
-            // Xử lý Modal Gia hạn
-            const renewModal = document.getElementById('renewModal');
+            // Xử lý Modal Gia hạn (Đã gộp listener bên trên, giữ nguyên phòng trường hợp thừa)
             const btnCloseRenewModal = document.getElementById('btnCloseRenewModal');
-
-            // Lắng nghe sự kiện click trên toàn bộ Document (Hỗ trợ tốt cho bảng dùng AJAX)
-            document.addEventListener('click', function (e) {
-                // Nếu click trúng nút Gia Hạn
-                const btnRenew = e.target.closest('.btn-renew');
-                if (btnRenew) {
-                    e.preventDefault();
-
-                    // Lấy dữ liệu từ các thuộc tính data-
-                    const passID = btnRenew.getAttribute('data-id');
-                    const plate = btnRenew.getAttribute('data-plate');
-                    const name = btnRenew.getAttribute('data-name');
-
-                    // Đổ dữ liệu vào Form
-                    document.getElementById('renewPassID').value = passID;
-                    document.getElementById('renewLicensePlate').value = plate;
-                    document.getElementById('renewCustomerName').value = name;
-
-                    // Hiển thị Modal
-                    renewModal.classList.add('active');
-                }
-            });
 
             // Đóng Modal khi bấm X
             btnCloseRenewModal.addEventListener('click', () => {

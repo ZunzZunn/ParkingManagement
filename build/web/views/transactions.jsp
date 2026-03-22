@@ -133,6 +133,14 @@
                                             </td>
                                         </tr>
                                     </c:forEach>
+
+                                    <c:if test="${empty allTransactions}">
+                                        <tr class="empty-row">
+                                            <td colspan="8" style="text-align: center; padding: 30px; color: var(--apple-text-light);">
+                                                Không tìm thấy giao dịch nào phù hợp với bộ lọc.
+                                            </td>
+                                        </tr>
+                                    </c:if>
                                 </tbody>
                             </table>
 
@@ -234,9 +242,15 @@
                 const positions = new Map();
                 tableBody.querySelectorAll('tr').forEach(row => {
                     const id = row.querySelector('strong')?.innerText;
-                    if (id)
+                    if (id) {
                         positions.set(id, row.getBoundingClientRect().top);
+                    }
                 });
+
+                // --- HIỆU ỨNG PHẢN HỒI TỨC THÌ (DIM/FADE) ---
+                // Làm mờ bảng đi một chút ngay khi bắt đầu lọc để báo hiệu hệ thống đang xử lý
+                tableBody.style.transition = 'opacity 0.2s ease';
+                tableBody.style.opacity = '0.4';
 
                 try {
                     const response = await fetch('transactions?' + urlParams);
@@ -245,32 +259,43 @@
 
                     // 2. Cập nhật DOM nhanh
                     tableBody.innerHTML = doc.getElementById('tableBody').innerHTML;
+
+                    // Cập nhật phân trang
                     const newPagination = doc.querySelector('.pagination');
                     const currentPagination = document.querySelector('.pagination');
-                    if (newPagination && currentPagination)
+                    if (newPagination && currentPagination) {
                         currentPagination.innerHTML = newPagination.innerHTML;
-                    else if (currentPagination)
+                    } else if (currentPagination) {
                         currentPagination.innerHTML = '';
+                    }
 
+                    // Cập nhật số lượng đếm trên tiêu đề
                     const newCount = doc.getElementById('transactionCount').innerText;
                     document.getElementById('transactionCount').innerText = newCount;
 
-                    // 3. HIỆU ỨNG TRƯỢT (FLIP) - Trơn tru như thanh tìm kiếm cũ
+                    // 3. HIỆU ỨNG TRƯỢT (FLIP) VÀ HIỆN RÕ TRỞ LẠI
                     requestAnimationFrame(() => {
+                        // Khôi phục lại độ sáng 100% cho thân bảng
+                        tableBody.style.opacity = '1';
+
                         tableBody.querySelectorAll('tr').forEach(row => {
                             const id = row.querySelector('strong')?.innerText;
                             const oldTop = positions.get(id);
+
                             if (oldTop) {
+                                // Nếu dòng đã tồn tại, cho trượt mượt mà về vị trí mới
                                 const delta = oldTop - row.getBoundingClientRect().top;
                                 if (delta !== 0) {
                                     row.style.transition = 'none';
                                     row.style.transform = `translateY(${delta}px)`;
+
                                     requestAnimationFrame(() => {
                                         row.style.transition = 'transform 0.5s cubic-bezier(0.2, 1, 0.2, 1)';
                                         row.style.transform = '';
                                     });
                                 }
                             } else {
+                                // Nếu là dòng dữ liệu mới tinh, cho mờ rồi hiện dần ra (Fade In)
                                 row.style.opacity = '0';
                                 setTimeout(() => {
                                     row.style.transition = 'opacity 0.4s';
@@ -284,6 +309,8 @@
                     window.history.pushState({}, '', 'transactions?' + urlParams);
                 } catch (e) {
                     console.error("Lỗi tải bảng:", e);
+                    // Nếu lỗi mạng, khôi phục lại độ sáng bảng để tránh bị kẹt ở trạng thái mờ
+                    tableBody.style.opacity = '1';
                 }
             }
 

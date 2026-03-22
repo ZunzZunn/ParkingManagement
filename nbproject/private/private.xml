@@ -3,12 +3,32 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/MonthlyPass.java</file>
-            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/css/dashboard.css</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/parking-map.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/RevenueDAO.java</file>
             <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/header.jsp</file>
-            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/LoginController.java</file>
-            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/MonthlyPassDTO.java</file>
             <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/MonthlyTicketController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/SlotDTO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/staff.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/css/dashboard.css</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/RevenueDTO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/MonthlyPassDTO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/css/revenue.css</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/StaffController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/monthly-ticket.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/MonthlyPass.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/model/RenewalHistory.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/login.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/StaffDashboardController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/transactions.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/UserDAO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/AdminDashboardController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/ParkingSlotDAO.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/staff-dashboard.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/sidebar.jsp</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/controller/RevenueController.java</file>
+            <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/web/views/revenue.jsp</file>
             <file>file:/C:/Users/myniy/OneDrive/Documents/NetBeansProjects/ParkingManagement/src/java/dal/MonthlyPassDAO.java</file>
         </group>
     </open-files>

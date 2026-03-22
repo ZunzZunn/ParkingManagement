@@ -1,0 +1,101 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Mar 22, 2026, 3:42:21 PM
+    Author     : myniy
+*/
+
+/* =========================================
+   REVENUE PAGE STYLES (Trang Doanh Thu)
+   ========================================= */
+
+/* Container bọc ngoài Biểu đồ */
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Khoảng cách cho Card bảng dữ liệu phía dưới */
+.revenue-table-card {
+    margin-top: 24px;
+}
+
+/* Wrapper để bảng có thể cuộn ngang trên màn hình nhỏ */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Căn lề phải chung cho các cột số/tiền */
+.text-right {
+    text-align: right !important;
+}
+
+/* --- Style chi tiết cho từng cột trong Bảng Doanh Thu --- */
+.apple-table .col-tx-id {
+    color: var(--apple-text-light);
+    font-size: 13px;
+}
+
+.apple-table .col-desc {
+    font-weight: 600;
+}
+
+.apple-table .col-amount {
+    color: #34c759; /* Màu xanh lá chuẩn thông báo tiền dương của Apple */
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Dòng hiển thị khi không có dữ liệu */
+.apple-table .empty-row td {
+    text-align: center;
+    color: var(--apple-text-light);
+    padding: 32px 24px;
+}
+
+/* =========================================
+   BỔ SUNG CSS CHO BỘ LỌC REAL-TIME & ANIMATION
+   ========================================= */
+
+/* Class mới cho nút Xóa bộ lọc to, lấp đầy ô grid */
+.btn-reset-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Khoảng cách icon và chữ */
+    height: 40px; /* Bằng chiều cao chuẩn form-control */
+    padding: 0 15px;
+    border-radius: 8px;
+    background: var(--apple-border); /* Màu xám nhạt trung tính */
+    color: var(--apple-text-dark);
+    text-decoration: none;
+    font-family: -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+    width: 100%; /* Chiếm hết chiều rộng ô grid được giao */
+    box-sizing: border-box;
+    border: none;
+}
+
+.btn-reset-filter:hover {
+    background: #d1d1d6; /* Đậm hơn một chút khi hover */
+    color: var(--apple-text-dark);
+}
+
+/* --- Hiệu ứng hiển thị/biến mất (Copy từ quản lý giao dịch) --- */
+/* Thiết lập trạng thái mặc định cho thân bảng */
+#tableBody {
+    transition: opacity 0.3s ease-in-out; /* Thời gian mờ dần 0.3s */
+    opacity: 1; /* Mặc định hiện rõ */
+}
+
+/* Class sẽ được Javascript thêm vào khi bắt đầu load AJAX */
+#tableBody.fading-out {
+    opacity: 0; /* Làm mờ hoàn toàn */
+}

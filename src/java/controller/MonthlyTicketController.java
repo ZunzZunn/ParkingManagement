@@ -99,16 +99,48 @@ public class MonthlyTicketController extends HttpServlet {
             return; // Dừng hàm doGet ở đây để không load lại HTML của toàn trang
         }
 
-        // 2. LOAD TRANG VÉ THÁNG BÌNH THƯỜNG
+        // 2. LOAD TRANG VÉ THÁNG (CÓ PHÂN TRANG BẰNG JAVA)
         String licensePlate = request.getParameter("licensePlate");
         String customerInfo = request.getParameter("customerInfo");
         String status = request.getParameter("status");
 
-        // Lấy danh sách vé
-        List<MonthlyPassDTO> passes = dao.getAllPasses(licensePlate, customerInfo, status);
-        request.setAttribute("passes", passes);
+        // Nhận trang hiện tại
+        int page = 1;
+        int pageSize = 10; // 10 vé / trang
+        if (request.getParameter("page") != null) {
+            try {
+                page = Integer.parseInt(request.getParameter("page"));
+            } catch (Exception e) {
+            }
+        }
 
-        // Lấy danh sách ô đỗ trống truyền sang Form Đăng ký mới
+        // Lấy TOÀN BỘ danh sách vé theo hàm DAO CŨ CỦA BẠN
+        List<MonthlyPassDTO> allPasses = dao.getAllPasses(licensePlate, customerInfo, status);
+
+        // --- BẮT ĐẦU XỬ LÝ PHÂN TRANG BẰNG JAVA ---
+        int totalPasses = allPasses.size();
+        int totalPages = (int) Math.ceil((double) totalPasses / pageSize);
+
+        // Đảm bảo page không bị lỗi vượt quá giới hạn
+        if (page > totalPages) {
+            page = totalPages;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        // Cắt subList để lấy đúng số vé của trang hiện tại
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalPasses);
+        List<MonthlyPassDTO> paginatedPasses = (totalPasses > 0) ? allPasses.subList(start, end) : new java.util.ArrayList<>();
+
+        // Đẩy dữ liệu lên JSP (Vẫn dùng tên biến "passes" để không phải sửa vòng lặp trên JSP của bạn)
+        request.setAttribute("passes", paginatedPasses);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalPasses", totalPasses);
+
+        // Lấy danh sách ô đỗ trống truyền sang Form Đăng ký mới (Giữ nguyên của bạn)
         request.setAttribute("emptySlots", dao.getAvailableSlots());
 
         request.getRequestDispatcher("/views/monthly-ticket.jsp").forward(request, response);
@@ -136,15 +168,17 @@ public class MonthlyTicketController extends HttpServlet {
                 String phoneNumber = request.getParameter("phoneNumber");
                 String licensePlate = request.getParameter("licensePlate");
                 int duration = Integer.parseInt(request.getParameter("duration"));
-
-                // Lấy thêm SlotID và TypeID (Loại xe) từ form
                 int slotId = Integer.parseInt(request.getParameter("slotId"));
                 int typeId = Integer.parseInt(request.getParameter("typeId"));
 
-                // 1. Tạo vé tháng mới có kèm SlotID
-                boolean success = dao.addMonthlyPass(customerName, phoneNumber, slotId, licensePlate, typeId, duration);
+                // Lấy thông tin tài khoản nhân viên đang thao tác để ghi nhận doanh thu
+                model.User account = (model.User) request.getSession().getAttribute("account");
+                int staffId = (account != null) ? account.getUserID() : 1; // Fallback ID 1 nếu lỗi session
 
-                // 2. Chuyển trạng thái ô đỗ đó thành "Reserved" (Đã đặt)
+                // Truyền thêm staffId vào hàm addMonthlyPass
+                boolean success = dao.addMonthlyPass(customerName, phoneNumber, slotId, licensePlate, typeId, duration, staffId);
+
+                // Chuyển trạng thái ô đỗ đó thành "Reserved" (Đã đặt)
                 if (success) {
                     dao.updateSlotStatus(slotId, "Reserved");
                 }
