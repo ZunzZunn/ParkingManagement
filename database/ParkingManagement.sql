@@ -98,7 +98,10 @@ INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Staff'), ('Customer');
 INSERT INTO Users (Username, PasswordHash, FullName, PhoneNumber, Email, DateOfBirth, RoleID) VALUES 
 ('admin', 'admin123', N'Quản Trị Viên', '0901234567', 'admin@iparking.com', '1990-01-01', 1),
 ('staff01', 'staff123', N'Trần Thị Thu Ngân', '0912345678', 'staff01@iparking.com', '1995-05-12', 2),
-('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 'staff02@iparking.com', '1998-08-20', 2);
+('staff02', 'staff123', N'Lê Văn Trực Ca', '0922334455', 'staff02@iparking.com', '1998-09-20', 2),
+('staff03', 'staff123', N'Nguyễn Văn Lộc', '0922334466', 'staff03@iparking.com', '1998-08-20', 2),
+('staff04', 'staff123', N'Hoàng Cìu Bửu', '0922334477', 'staff04@iparking.com', '1998-06-20', 2),
+('staff05', 'staff123', N'Lê Văn Luyện', '0922334488', 'staff05@iparking.com', '1998-02-20', 2);
 
 -- 3.3. Bảng giá (3 loại xe)
 INSERT INTO VehicleTypes (TypeName, PricePerHour, PricePerMonth) VALUES 
