@@ -366,5 +366,71 @@
                 }
             });
         </script>
+
+        <div id="appleToast" class="apple-notification">
+            <div class="notif-icon" id="toastIcon">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <div class="notif-content">
+                <h4 id="toastTitle">Thông báo</h4>
+                <p id="toastMessage">Nội dung thông báo</p>
+            </div>
+            <button class="notif-close" onclick="closeToast()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <script>
+            // Hàm hiển thị Popup
+            function showToast(title, message, type = 'error') {
+                const toast = document.getElementById('appleToast');
+                const iconDiv = document.getElementById('toastIcon');
+
+                document.getElementById('toastTitle').innerText = title;
+                document.getElementById('toastMessage').innerText = message;
+
+                // Đổi màu và icon tùy theo loại thông báo (Lỗi hoặc Thành công)
+                if (type === 'error') {
+                    iconDiv.style.background = 'rgba(255, 59, 48, 0.1)'; // Nền đỏ nhạt
+                    iconDiv.style.color = '#ff3b30'; // Chữ đỏ
+                    iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                } else if (type === 'success') {
+                    iconDiv.style.background = 'rgba(52, 199, 89, 0.1)'; // Nền xanh lá nhạt
+                    iconDiv.style.color = '#34c759'; // Chữ xanh lá
+                    iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
+                }
+
+                // Thêm class 'show' để trượt xuống
+                toast.classList.add('show');
+
+                // Tự động đóng sau 4 giây
+                setTimeout(closeToast, 4000);
+            }
+
+            function closeToast() {
+                document.getElementById('appleToast').classList.remove('show');
+            }
+        </script>
+
+        <c:if test="${not empty sessionScope.errorMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    // Đóng modal thêm xe nếu đang mở
+                    document.getElementById('addModal').classList.remove('active');
+                    // Hiện thông báo lỗi
+                    showToast('Lỗi Check-in', '${sessionScope.errorMessage}', 'error');
+                });
+            </script>
+            <c:remove var="errorMessage" scope="session"/>
+        </c:if>
+
+        <c:if test="${not empty sessionScope.successMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    showToast('Thành công', '${sessionScope.successMessage}', 'success');
+                });
+            </script>
+            <c:remove var="successMessage" scope="session"/>
+        </c:if>
     </body>
 </html>

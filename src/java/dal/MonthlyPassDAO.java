@@ -336,4 +336,21 @@ public class MonthlyPassDAO extends DBContext {
         }
         return list;
     }
+
+    // Kiểm tra xem biển số xe có vé tháng đang còn hoạt động không
+    public boolean hasActiveMonthlyPass(String licensePlate) {
+        // Kiểm tra IsActive = 1 và EndDate vẫn còn hạn (>= ngày hiện tại)
+        String sql = "SELECT 1 FROM MonthlyPasses WHERE LicensePlate = ? AND IsActive = 1 AND EndDate >= CAST(GETDATE() AS DATE)";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, licensePlate);
+            java.sql.ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return true; // Xe này ĐÃ CÓ vé tháng
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false; // Xe không có vé tháng hoặc vé đã hết hạn
+    }
 }

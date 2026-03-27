@@ -92,10 +92,27 @@ public class ParkingMapController extends HttpServlet {
             int typeId = Integer.parseInt(request.getParameter("typeId"));
             String licensePlate = request.getParameter("licensePlate").trim().toUpperCase();
 
+            // --- 1. KIỂM TRA XE ĐÃ CÓ TRONG BÃI ---
+            dal.TicketDAO ticketDao = new dal.TicketDAO();
+            if (ticketDao.isVehicleParked(licensePlate)) {
+                response.getWriter().write("{\"status\":\"exists\", \"message\":\"Lỗi: Biển số xe này đang đỗ trong bãi!\"}");
+                return;
+            }
+
+            // --- 2. KIỂM TRA XE ĐÃ CÓ VÉ THÁNG ---
+            dal.MonthlyPassDAO monthlyDao = new dal.MonthlyPassDAO();
+            if (monthlyDao.hasActiveMonthlyPass(licensePlate)) {
+                // Trả về JSON với status 'exists'. Giao diện JS (từ câu trả lời trước) 
+                // sẽ tự động nhận diện và trượt popup Apple từ trên xuống với message này.
+                response.getWriter().write("{\"status\":\"exists\", \"message\":\"Lỗi: Biển số xe này đã đăng ký vé tháng!\"}");
+                return;
+            }
+
+            // Nếu qua hết các vòng kiểm tra thì cho xe vào
             if (dao.quickCheckIn(slotId, licensePlate, typeId, account.getUserID())) {
                 response.getWriter().write("{\"status\":\"success\"}");
             } else {
-                response.getWriter().write("{\"status\":\"error\"}");
+                response.getWriter().write("{\"status\":\"error\", \"message\":\"Lỗi hệ thống khi check-in!\"}");
             }
         } else if ("checkOut".equals(action)) {
             int slotId = Integer.parseInt(request.getParameter("slotId"));

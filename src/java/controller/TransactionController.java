@@ -129,14 +129,49 @@ public class TransactionController extends HttpServlet {
         if ("checkin".equals(action)) {
             // Xử lý XE VÀO
             String licensePlate = request.getParameter("licensePlate");
+
+            // --- 1. KIỂM TRA XE ĐÃ CÓ TRONG BÃI (Code từ yêu cầu trước) ---
+            if (dao.isVehicleParked(licensePlate)) {
+                session.setAttribute("errorMessage", "Biển số xe " + licensePlate + " hiện đang đỗ trong bãi!");
+                response.sendRedirect("transactions");
+                return;
+            }
+
+            // --- 2. KIỂM TRA XE ĐÃ CÓ VÉ THÁNG CHƯA (Mới thêm) ---
+            dal.MonthlyPassDAO monthlyDao = new dal.MonthlyPassDAO();
+            if (monthlyDao.hasActiveMonthlyPass(licensePlate)) {
+                // Tận dụng cơ chế errorMessage có sẵn để trigger popup Apple
+                session.setAttribute("errorMessage", "Biển số " + licensePlate + " đã đăng ký vé tháng. Không thể check-in vé lượt!");
+                response.sendRedirect("transactions");
+                return; // Dừng lại, không cho check-in
+            }
+
             int typeId = Integer.parseInt(request.getParameter("typeId"));
             int slotId = Integer.parseInt(request.getParameter("slotId"));
-            dao.checkInVehicle(licensePlate, typeId, slotId, staffId);
 
+            if (dao.checkInVehicle(licensePlate, typeId, slotId, staffId)) {
+                session.setAttribute("successMessage", "Đã ghi nhận xe " + licensePlate + " vào bãi.");
+            } else {
+                session.setAttribute("errorMessage", "Lỗi hệ thống khi check-in!");
+            }
+            response.sendRedirect("transactions");
+            return;
         } else if ("checkout".equals(action)) {
             // Xử lý XE RA
             String licensePlate = request.getParameter("licensePlate");
-            dao.checkOutVehicle(licensePlate, staffId);
+
+            // Bắt kết quả trả về từ hàm checkOutVehicle
+            if (dao.checkOutVehicle(licensePlate, staffId)) {
+                // Đẩy thông báo thành công cho Popup Apple
+                session.setAttribute("successMessage", "Thanh toán và cho xe " + licensePlate + " ra khỏi bãi thành công!");
+            } else {
+                // Đẩy thông báo lỗi
+                session.setAttribute("errorMessage", "Lỗi hệ thống: Không thể cho xe " + licensePlate + " ra!");
+            }
+
+            // Xử lý xong thì redirect để tránh lỗi F5 gửi lại form
+            response.sendRedirect("transactions");
+            return;
         }
 
         // Dù vào hay ra xong cũng tải lại trang để thấy kết quả mới nhất

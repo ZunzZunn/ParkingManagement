@@ -257,4 +257,36 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    // 1. Lấy RoleID của một user bất kỳ để biết họ là Admin hay Nhân viên
+    public int getUserRole(int userId) {
+        String sql = "SELECT RoleID FROM Users WHERE UserID = ?";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, userId);
+            java.sql.ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("RoleID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // Lỗi không tìm thấy
+    }
+
+    // 2. Đếm xem hệ thống đang có bao nhiêu Admin CÒN HOẠT ĐỘNG
+    public int countActiveAdmins() {
+        // Giả sử RoleID = 1 là Quản trị viên (Admin), IsActive = 1 là đang hoạt động
+        String sql = "SELECT COUNT(*) FROM Users WHERE RoleID = 1 AND IsActive = 1";
+        try {
+            java.sql.PreparedStatement st = connection.prepareStatement(sql);
+            java.sql.ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

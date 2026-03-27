@@ -207,9 +207,136 @@
             });
         </script>
 
+        <div id="appleToast" class="apple-notification">
+            <div class="notif-icon" id="toastIcon">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <div class="notif-content">
+                <h4 id="toastTitle">Thông báo</h4>
+                <p id="toastMessage">Nội dung thông báo</p>
+            </div>
+            <button class="notif-close" onclick="closeToast()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <script>
+            function showToast(title, message, type = 'error') {
+                const toast = document.getElementById('appleToast');
+                const iconDiv = document.getElementById('toastIcon');
+
+                document.getElementById('toastTitle').innerText = title;
+                document.getElementById('toastMessage').innerText = message;
+
+                if (type === 'error') {
+                    iconDiv.style.background = 'rgba(255, 59, 48, 0.1)';
+                    iconDiv.style.color = '#ff3b30';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                } else if (type === 'success') {
+                    iconDiv.style.background = 'rgba(52, 199, 89, 0.1)';
+                    iconDiv.style.color = '#34c759';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
+                }
+
+                toast.classList.add('show');
+                setTimeout(closeToast, 4000);
+            }
+
+            function closeToast() {
+                document.getElementById('appleToast').classList.remove('show');
+            }
+        </script>
+
+        <c:if test="${not empty sessionScope.errorMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    showToast('Cảnh báo bảo mật', '${sessionScope.errorMessage}', 'error');
+                });
+            </script>
+            <c:remove var="errorMessage" scope="session"/>
+        </c:if>
+
+        <c:if test="${not empty sessionScope.successMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    showToast('Thành công', '${sessionScope.successMessage}', 'success');
+                });
+            </script>
+            <c:remove var="successMessage" scope="session"/>
+        </c:if>
+
+        <div id="appleToast" class="apple-notification">
+            <div class="notif-icon" id="toastIcon">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <div class="notif-content">
+                <h4 id="toastTitle">Thông báo</h4>
+                <p id="toastMessage">Nội dung thông báo</p>
+            </div>
+            <button class="notif-close" onclick="closeToast()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <script>
+            function showToast(title, message, type = 'error') {
+                const toast = document.getElementById('appleToast');
+                const iconDiv = document.getElementById('toastIcon');
+
+                document.getElementById('toastTitle').innerText = title;
+                document.getElementById('toastMessage').innerText = message;
+
+                if (type === 'error') {
+                    iconDiv.style.background = 'rgba(255, 59, 48, 0.1)';
+                    iconDiv.style.color = '#ff3b30';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                } else if (type === 'success') {
+                    iconDiv.style.background = 'rgba(52, 199, 89, 0.1)';
+                    iconDiv.style.color = '#34c759';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else {
+                    iconDiv.style.background = 'rgba(0, 113, 227, 0.1)';
+                    iconDiv.style.color = '#0071e3';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-info"></i>';
+                }
+
+                toast.classList.add('show');
+                setTimeout(closeToast, 4000);
+            }
+
+            function closeToast() {
+                document.getElementById('appleToast').classList.remove('show');
+            }
+        </script>
+
+        <c:if test="${not empty sessionScope.errorMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    showToast('Cảnh báo', '${sessionScope.errorMessage}', 'error');
+                });
+            </script>
+            <c:remove var="errorMessage" scope="session"/>
+        </c:if>
+
+        <c:if test="${not empty sessionScope.successMessage}">
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    showToast('Thành công', '${sessionScope.successMessage}', 'success');
+                });
+            </script>
+            <c:remove var="successMessage" scope="session"/>
+        </c:if>
+
         <c:if test="${not empty sessionScope.dbMessage}">
             <script>
-                alert('${sessionScope.dbMessage}');
+                window.addEventListener('DOMContentLoaded', () => {
+                    let msg = '${sessionScope.dbMessage}';
+                    // Tự động bắt từ khóa để đoán xem đây là thông báo Lỗi hay Thành công
+                    let type = (msg.includes('LỖI') || msg.includes('Không thể')) ? 'error' : 'success';
+                    let title = type === 'error' ? 'Cảnh báo thao tác' : 'Thành công';
+
+                    showToast(title, msg, type);
+                });
             </script>
             <c:remove var="dbMessage" scope="session"/>
         </c:if>

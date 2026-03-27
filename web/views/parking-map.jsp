@@ -160,7 +160,7 @@
             async function submitCheckIn(slotId, typeId) {
                 const lp = document.getElementById('inLicensePlate').value.trim();
                 if (!lp) {
-                    alert('Vui lòng nhập biển số xe!');
+                    showToast('Thiếu thông tin', 'Vui lòng nhập biển số xe!', 'error');
                     return;
                 }
 
@@ -172,35 +172,53 @@
 
                 const res = await fetch('${pageContext.request.contextPath}/parking-map', {method: 'POST', body: params});
                 const data = await res.json();
+
                 if (data.status === 'success') {
-                    window.location.reload();
+                    closeSlotModal(); // Ẩn modal nhập biển số đi
+                    showToast('Check-in thành công', 'Đã ghi nhận xe vào bãi an toàn.', 'success');
+                    // Đợi 1.5 giây cho người dùng đọc thông báo rồi mới load lại sơ đồ
+                    setTimeout(() => window.location.reload(), 1500);
+                } else if (data.status === 'exists') {
+                    // XE ĐÃ CÓ TRONG BÃI -> HIỆN POPUP LỖI
+                    showToast('Từ chối Check-in', data.message, 'error');
                 } else {
-                    alert('Lỗi hệ thống!');
+                    showToast('Lỗi hệ thống', 'Không thể check-in lúc này!', 'error');
                 }
             }
 
-            // Gửi lệnh Cho xe ra
+            // Gửi lệnh Cho xe ra (Đã cập nhật Popup Apple)
             async function submitCheckOut(slotId) {
-                if (!confirm('Bạn có chắc chắn muốn cho xe này ra khỏi bãi?'))
+                if (!confirm('Bạn có chắc chắn muốn thanh toán và cho xe này ra khỏi bãi?'))
                     return;
+
                 const params = new URLSearchParams();
                 params.append('action', 'checkOut');
                 params.append('slotId', slotId);
 
-                const res = await fetch('${pageContext.request.contextPath}/parking-map', {method: 'POST', body: params});
-                const data = await res.json();
-                if (data.status === 'success') {
-                    window.location.reload();
-                } else {
-                    alert('Lỗi hệ thống!');
+                try {
+                    const res = await fetch('${pageContext.request.contextPath}/parking-map', {method: 'POST', body: params});
+                    const data = await res.json();
+
+                    if (data.status === 'success') {
+                        closeSlotModal(); // Tự động đóng cái bảng chi tiết ô đỗ lại
+                        showToast('Check-out thành công', 'Đã thanh toán và giải phóng ô đỗ.', 'success');
+
+                        // Đợi 1.5 giây cho người dùng xem cái popup màu xanh trượt xuống rồi mới load lại sơ đồ
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast('Lỗi hệ thống', 'Không thể cho xe ra lúc này!', 'error');
+                    }
+                } catch (error) {
+                    showToast('Lỗi kết nối', 'Vui lòng kiểm tra lại mạng!', 'error');
                 }
             }
 
-            // Gửi lệnh Đổi trạng thái Bảo trì
+            // Gửi lệnh Đổi trạng thái Bảo trì (Đã cập nhật Popup Apple)
             async function submitToggleMaintenance(slotId, newStatus) {
                 const msg = newStatus === 'Maintenance'
                         ? 'Bạn muốn tạm khóa ô đỗ này để bảo trì?'
                         : 'Bảo trì đã xong. Mở lại ô đỗ này để đón khách?';
+
                 if (!confirm(msg))
                     return;
 
@@ -209,12 +227,19 @@
                 params.append('slotId', slotId);
                 params.append('status', newStatus);
 
-                const res = await fetch('${pageContext.request.contextPath}/parking-map', {method: 'POST', body: params});
-                const data = await res.json();
-                if (data.status === 'success') {
-                    window.location.reload();
-                } else {
-                    alert('Lỗi hệ thống!');
+                try {
+                    const res = await fetch('${pageContext.request.contextPath}/parking-map', {method: 'POST', body: params});
+                    const data = await res.json();
+
+                    if (data.status === 'success') {
+                        closeSlotModal();
+                        showToast('Thành công', 'Đã cập nhật trạng thái ô đỗ.', 'success');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast('Lỗi hệ thống', 'Không thể đổi trạng thái!', 'error');
+                    }
+                } catch (error) {
+                    showToast('Lỗi kết nối', 'Không thể đổi trạng thái lúc này!', 'error');
                 }
             }
 
@@ -253,6 +278,46 @@
                     }
                 }
             });
+        </script>
+
+        <div id="appleToast" class="apple-notification">
+            <div class="notif-icon" id="toastIcon">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <div class="notif-content">
+                <h4 id="toastTitle">Thông báo</h4>
+                <p id="toastMessage">Nội dung thông báo</p>
+            </div>
+            <button class="notif-close" onclick="closeToast()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <script>
+            function showToast(title, message, type = 'error') {
+                const toast = document.getElementById('appleToast');
+                const iconDiv = document.getElementById('toastIcon');
+
+                document.getElementById('toastTitle').innerText = title;
+                document.getElementById('toastMessage').innerText = message;
+
+                if (type === 'error') {
+                    iconDiv.style.background = 'rgba(255, 59, 48, 0.1)';
+                    iconDiv.style.color = '#ff3b30';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                } else if (type === 'success') {
+                    iconDiv.style.background = 'rgba(52, 199, 89, 0.1)';
+                    iconDiv.style.color = '#34c759';
+                    iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
+                }
+
+                toast.classList.add('show');
+                setTimeout(closeToast, 4000);
+            }
+
+            function closeToast() {
+                document.getElementById('appleToast').classList.remove('show');
+            }
         </script>
     </body>
 </html>

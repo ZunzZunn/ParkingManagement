@@ -129,6 +129,22 @@ public class TicketDAO extends DBContext {
         return list;
     }
 
+    // Kiểm tra xem xe có đang nằm trong bãi không (Status = 'Active')
+    public boolean isVehicleParked(String licensePlate) {
+        String sql = "SELECT 1 FROM Tickets WHERE LicensePlate = ? AND Status = 'Active'";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, licensePlate);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return true; // Xe đang có trong bãi
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false; // Xe không có trong bãi
+    }
+
     // 2. Lưu giao dịch mới & Cập nhật chỗ đỗ thành 'Occupied'
     public boolean checkInVehicle(String licensePlate, int typeId, int slotId, int staffId) {
         String sqlInsertTicket = "INSERT INTO Tickets (LicensePlate, SlotID, TypeID, IsMonthlyPass, StaffInID, Status) VALUES (?, ?, ?, 0, ?, 'Active')";

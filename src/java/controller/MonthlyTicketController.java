@@ -167,32 +167,45 @@ public class MonthlyTicketController extends HttpServlet {
                 String customerName = request.getParameter("customerName");
                 String phoneNumber = request.getParameter("phoneNumber");
                 String licensePlate = request.getParameter("licensePlate");
+
+                // --- 1. KIỂM TRA XE ĐÃ CÓ VÉ THÁNG CHƯA ---
+                if (dao.hasActiveMonthlyPass(licensePlate)) {
+                    // Nếu đã có, lưu lỗi vào session và load lại trang
+                    request.getSession().setAttribute("errorMessage", "Biển số xe " + licensePlate + " đã có vé tháng đang hoạt động!");
+                    response.sendRedirect("monthly-ticket");
+                    return; // Dừng tại đây, không cho đăng ký
+                }
+
                 int duration = Integer.parseInt(request.getParameter("duration"));
                 int slotId = Integer.parseInt(request.getParameter("slotId"));
                 int typeId = Integer.parseInt(request.getParameter("typeId"));
 
-                // Lấy thông tin tài khoản nhân viên đang thao tác để ghi nhận doanh thu
+                // Lấy thông tin tài khoản nhân viên
                 model.User account = (model.User) request.getSession().getAttribute("account");
-                int staffId = (account != null) ? account.getUserID() : 1; // Fallback ID 1 nếu lỗi session
+                int staffId = (account != null) ? account.getUserID() : 1;
 
-                // Truyền thêm staffId vào hàm addMonthlyPass
+                // Đăng ký mới
                 boolean success = dao.addMonthlyPass(customerName, phoneNumber, slotId, licensePlate, typeId, duration, staffId);
 
-                // Chuyển trạng thái ô đỗ đó thành "Reserved" (Đã đặt)
                 if (success) {
                     dao.updateSlotStatus(slotId, "Reserved");
+                    request.getSession().setAttribute("successMessage", "Đăng ký vé tháng thành công cho xe " + licensePlate);
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Lỗi hệ thống khi đăng ký vé!");
                 }
 
             } else if ("renew".equals(action)) {
                 int passId = Integer.parseInt(request.getParameter("passID"));
                 int duration = Integer.parseInt(request.getParameter("duration"));
 
-                // Lấy thông tin tài khoản đang đăng nhập từ Session
                 model.User account = (model.User) request.getSession().getAttribute("account");
-                int staffId = (account != null) ? account.getUserID() : 1; // Fallback ID 1 nếu lỗi session
+                int staffId = (account != null) ? account.getUserID() : 1;
 
-                // Truyền staffId vào hàm
-                dao.renewMonthlyPass(passId, duration, staffId);
+                if (dao.renewMonthlyPass(passId, duration, staffId)) {
+                    request.getSession().setAttribute("successMessage", "Gia hạn vé tháng thành công!");
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Lỗi hệ thống khi gia hạn vé!");
+                }
             }
         } catch (Exception e) {
             System.out.println("Lỗi POST MonthlyTicket: " + e.getMessage());
